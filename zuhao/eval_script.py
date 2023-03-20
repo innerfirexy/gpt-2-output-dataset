@@ -22,7 +22,7 @@ def load_gpt2_dataset(json_file_name, num_examples=float("inf")):
     for i, line in tqdm(enumerate(open(json_file_name))):
         try:
             texts.append(json.loads(line)["text"])
-        except json.decoder.JSONDecodeError:
+        except json.decoder.JSONDecodeError: # skip to next line when encountering wrong string format
             continue
    
     return texts # [gen_text1, gen_text2, ...]
@@ -34,7 +34,7 @@ def load_get2_pair(json_file_name, num_examples=float("inf")):
     for i, line in tqdm(enumerate(open(json_file_name))):
         try:
             texts.append((json.loads(line)["prompt_text"], json.loads(line)["gen_text"]))
-        except json.decoder.JSONDecodeError:
+        except json.decoder.JSONDecodeError: # skip to next line when encountering wrong string format
             continue
 
     return texts # [(prompt_text1, gen_text1), (prompt_text2, gen_text2), ...]
