@@ -20,15 +20,12 @@ def load_gpt2_dataset(json_file_name, num_examples=float("inf")):
     texts = []
     print(f"Loading data from {json_file_name}......")
     for i, line in tqdm(enumerate(open(json_file_name))):
-        # print(type(line))
-        # print(json.loads(line)["text"])
         try:
             texts.append(json.loads(line)["text"])
-        except json.decoder.JSONDecodeError:
+        except json.decoder.JSONDecodeError: # skip to next line when encountering wrong string format
             continue
    
     return texts # [gen_text1, gen_text2, ...]
-
 
 
 def load_get2_pair(json_file_name, num_examples=float("inf")):
@@ -37,7 +34,7 @@ def load_get2_pair(json_file_name, num_examples=float("inf")):
     for i, line in tqdm(enumerate(open(json_file_name))):
         try:
             texts.append((json.loads(line)["prompt_text"], json.loads(line)["gen_text"]))
-        except json.decoder.JSONDecodeError:
+        except json.decoder.JSONDecodeError: # skip to next line when encountering wrong string format
             continue
 
     return texts # [(prompt_text1, gen_text1), (prompt_text2, gen_text2), ...]
@@ -57,7 +54,7 @@ def compute_mauve(human_text, gen_text, max_len):
     
     Results: webtext_train(9310) vs. opt_13b-125m(5273) --> mauve = 0.8627802521742031 (1024) / 0.9102370353331146 (256) / 0.9266521248714534 (128)
              webtext_valid(5000) vs. opt_13b-125m(5273) --> mauve = 0.8735936367558702 (1024) / 0.9218938670439518 (256) / 0.9272530776764185 (128)
-             webtext_test(5000)  vs. opt_13b-125m(5273) --> mauve = 0.8552726757055065 (1024) / 0.9187265446563135 (256) / 0.9203297293141568 (128) / GLM : 0.038323922105737845
+             webtext_test(5000)  vs. opt_13b-125m(5273) --> mauve = 0.8552726757055065 (1024) / 0.9187265446563135 (256) / 0.9203297293141568 (128)
     Finding: The lower tgt_len, the better performance.
     """
     
@@ -65,7 +62,6 @@ def compute_mauve(human_text, gen_text, max_len):
     mauve_score = mauve.compute_mauve(p_text=human_text, q_text=gen_text, device_id=0, max_text_length=max_len, verbose=False, featurize_model_name="gpt2").mauve
     
     return mauve_score
-
 
 
 ##########################
@@ -85,21 +81,12 @@ def compute_rep_div(gen_text):
              rep-3 score: 4.17
              rep-4 score: 2.95
              diversity score: 0.8533026626250001
-             
-             GLM2b
-            rep-2 score: 69.01
-            rep-3 score: 65.02
-            rep-4 score: 62.31
-            diversity score: 0.040857098237999996
-             
     Finding: The lower tgt_len, the better performance. batch_decode is involved as it does help produce better scores.
     """
     
     rep_2, rep_3, rep_4, div_score = measure_repetition_and_diversity(gen_text)
     
     return rep_2, rep_3, rep_4, div_score
-
-
 
 
 #############
@@ -113,7 +100,6 @@ def compute_coh(file_name):
     :return coh_score: coherence score of given text with reference to its prefix
     
     Results: coherence score: 0.8022059978309312 [w/o batch_decode]
-    GLM2b - 0.6253988924893465
     Finding: Indepedent of {tgt_len}.
     """
     
@@ -140,9 +126,6 @@ def compute_bleu(human_text, gen_text):
     Results: webtext_train(9310) vs. opt_13b-125m(5273) --> bleu = 0.3199899896719573 (1024) / 0.2445160862568812 (256) / 0.20247434364644207 (128) [with batch_decode]
              webtext_valid(5000) vs. opt_13b-125m(5273) --> bleu = 0.3174006504263524 (1024) / 0.24456896382229462 (256) / 0.2013412137537578 (128)
              webtext_test(5000)  vs. opt_13b-125m(5273) --> bleu = 0.3174536690014808 (1024) / 0.24404910401572574 (256) / 0.20054597183508927 (128)
-             
-             glm2b - bleu score: 0.141688645442479
-    
     Finding: The higher tgt_len, the better performance.
     """
     
@@ -165,7 +148,6 @@ def compute_self_bleu(gen_text):
     :return self_bleu_score: Self-BLEU score of given text
     
     Results: 0.3786205616072991 (1024) / 0.372401794537256 (256) / 0.3283484372757455 (128) [with batch_decode]
-    GLM2b- self-bleu score: 0.4552384305427812
     Finding: The higher tgt_len, the better performance.
     """
     
@@ -178,12 +160,12 @@ def compute_self_bleu(gen_text):
 
 if __name__ == "__main__":
     # hyper-parameters
-    tgt_len = 256   # max text length (1024 / 256 / 128); 128 is used in Contrastive Decoding code
+    tgt_len = 128   # max text length (1024 / 256 / 128); 128 is used in Contrastive Decoding code
     split = "train" # reference data source (train / valid / test)
   
     # load original human & model texts
-    p_text_ = load_gpt2_dataset('/home/james/Workspace/gpt-2-output-dataset/data/webtext.test.jsonl') # human text
-    q_text_ = load_gpt2_dataset("/home/james/Workspace/gpt-2-output-dataset/james/gen_text_256.jsonl") # model text
+    p_text_ = load_gpt2_dataset("/Users/james/Workspace/gpt-2-output-dataset/data/webtext.test.jsonl") # human text
+    q_text_ = load_gpt2_dataset("/Users/james/Workspace/gpt-2-output-dataset/james/glm10b/webtext.train_glm10b.jsonl") # model text
 
     # tokenization & batch_decode
     tokenizer = AutoTokenizer.from_pretrained("gpt2")
@@ -207,7 +189,7 @@ if __name__ == "__main__":
     print("rep-4 score:", rep_4)
     print("diversity score:", div_score)
 
-    coh_score = compute_coh(file_name="/home/james/Workspace/gpt-2-output-dataset/james/prompts_gen_text.jsonl")
+    coh_score = compute_coh(file_name="/Users/james/Workspace/gpt-2-output-dataset/james/glm10b/prompt_text_gen_text.jsonl")
     print("coherence score:", coh_score)
 
     bleu_score = compute_bleu(p_text, q_text)
@@ -215,4 +197,4 @@ if __name__ == "__main__":
 
     self_bleu_score = compute_self_bleu(q_text)
     print("self-bleu score:", self_bleu_score)
-
+            
