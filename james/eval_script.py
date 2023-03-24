@@ -12,6 +12,18 @@ import os
 # Set TOKENIZERS_PARALLELISM to 'true' or 'false' to avoid warning
 os.environ["TOKENIZERS_PARALLELISM"] = "true"
 
+'''
+
+mauve score: 0.1800960731030162
+rep-2 score: 37.73
+rep-3 score: 32.9
+rep-4 score: 30.05
+diversity score: 0.29227327415000004
+coherence score: 0.5599484690183022
+bleu score: 0.144393291415524
+self-bleu score: 0.39390262005326115
+'''
+
 
 ###############
 # Data Loader #
@@ -52,10 +64,6 @@ def compute_mauve(human_text, gen_text, max_len):
     :param max_len: maximum text length to truncate
     :return mauve_score: MAUVE score of given text with reference to webtext
     
-    Results: webtext_train(9310) vs. opt_13b-125m(5273) --> mauve = 0.8627802521742031 (1024) / 0.9102370353331146 (256) / 0.9266521248714534 (128)
-             webtext_valid(5000) vs. opt_13b-125m(5273) --> mauve = 0.8735936367558702 (1024) / 0.9218938670439518 (256) / 0.9272530776764185 (128)
-             webtext_test(5000)  vs. opt_13b-125m(5273) --> mauve = 0.8552726757055065 (1024) / 0.9187265446563135 (256) / 0.9203297293141568 (128)
-    Finding: The lower tgt_len, the better performance.
     """
     
     # call mauve.compute_mauve using raw text on GPU 0; each generation is truncated to {tgt_len} tokens
@@ -77,11 +85,6 @@ def compute_rep_div(gen_text):
     :return rep_4: 4-gram repetition score of given text
     :return div_score: diversity score of given text
     
-    Results: rep-2 score: 8.25 [with batch_decode]
-             rep-3 score: 4.17
-             rep-4 score: 2.95
-             diversity score: 0.8533026626250001
-    Finding: The lower tgt_len, the better performance. batch_decode is involved as it does help produce better scores.
     """
     
     rep_2, rep_3, rep_4, div_score = measure_repetition_and_diversity(gen_text)
@@ -99,8 +102,6 @@ def compute_coh(file_name):
     :param file_name: jsonl file which stores <prompt_text, gen_text> pairs
     :return coh_score: coherence score of given text with reference to its prefix
     
-    Results: coherence score: 0.8022059978309312 [w/o batch_decode]
-    Finding: Indepedent of {tgt_len}.
     """
     
     model = SimCSE("princeton-nlp/sup-simcse-bert-base-uncased")
@@ -122,11 +123,6 @@ def compute_bleu(human_text, gen_text):
     :param human_text: human text (webtext)
     :param gen_text: model-generated text
     :return bleu_score: BLEU score of given text with reference to webtext
-    
-    Results: webtext_train(9310) vs. opt_13b-125m(5273) --> bleu = 0.3199899896719573 (1024) / 0.2445160862568812 (256) / 0.20247434364644207 (128) [with batch_decode]
-             webtext_valid(5000) vs. opt_13b-125m(5273) --> bleu = 0.3174006504263524 (1024) / 0.24456896382229462 (256) / 0.2013412137537578 (128)
-             webtext_test(5000)  vs. opt_13b-125m(5273) --> bleu = 0.3174536690014808 (1024) / 0.24404910401572574 (256) / 0.20054597183508927 (128)
-    Finding: The higher tgt_len, the better performance.
     """
     
     bleu = Bleu()
@@ -147,8 +143,6 @@ def compute_self_bleu(gen_text):
     :param gen_text: model-generated text
     :return self_bleu_score: Self-BLEU score of given text
     
-    Results: 0.3786205616072991 (1024) / 0.372401794537256 (256) / 0.3283484372757455 (128) [with batch_decode]
-    Finding: The higher tgt_len, the better performance.
     """
     
     self_bleu = SelfBleu()
@@ -164,8 +158,8 @@ if __name__ == "__main__":
     split = "train" # reference data source (train / valid / test)
   
     # load original human & model texts
-    p_text_ = load_gpt2_dataset("/Users/james/Workspace/gpt-2-output-dataset/data/webtext.test.jsonl") # human text
-    q_text_ = load_gpt2_dataset("/Users/james/Workspace/gpt-2-output-dataset/james/glm10b/webtext.train_glm10b.jsonl") # model text
+    p_text_ = load_gpt2_dataset("/home/james/Workspace/gpt-2-output-dataset/data/webtext.test.jsonl") # human text
+    q_text_ = load_gpt2_dataset("/home/james/Workspace/gpt-2-output-dataset/james/glm10b/webtext.train_glm10b.jsonl") # model text
 
     # tokenization & batch_decode
     tokenizer = AutoTokenizer.from_pretrained("gpt2")
@@ -189,7 +183,7 @@ if __name__ == "__main__":
     print("rep-4 score:", rep_4)
     print("diversity score:", div_score)
 
-    coh_score = compute_coh(file_name="/Users/james/Workspace/gpt-2-output-dataset/james/glm10b/prompt_text_gen_text.jsonl")
+    coh_score = compute_coh(file_name="/home/james/Workspace/gpt-2-output-dataset/james/glm10b/prompt_text_gen_text.jsonl")
     print("coherence score:", coh_score)
 
     bleu_score = compute_bleu(p_text, q_text)
