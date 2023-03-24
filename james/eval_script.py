@@ -180,8 +180,8 @@ if __name__ == "__main__":
     q_text = tokenizer.batch_decode(y) # [:target_num]
 
     # compute scores
-    # mauve_score = compute_mauve(p_text, q_text, tgt_len)
-    # print("mauve score:", mauve_score)
+    mauve_score = compute_mauve(p_text, q_text, tgt_len)
+    print("mauve score:", mauve_score)
 
     rep_2, rep_3, rep_4, div_score = compute_rep_div(q_text)
     print("rep-2 score:", rep_2)
@@ -189,8 +189,8 @@ if __name__ == "__main__":
     print("rep-4 score:", rep_4)
     print("diversity score:", div_score)
 
-    # coh_score = compute_coh(file_name="/Users/james/Workspace/gpt-2-output-dataset/james/glm10b/prompt_text_gen_text.jsonl")
-    # print("coherence score:", coh_score)
+    coh_score = compute_coh(file_name="/Users/james/Workspace/gpt-2-output-dataset/james/glm10b/prompt_text_gen_text.jsonl")
+    print("coherence score:", coh_score)
 
     bleu_score = compute_bleu(p_text, q_text)
     print("bleu score:", bleu_score)
