@@ -145,3 +145,4 @@ corr_corr_sam, _ = pearsonr(corr_list, sam_list)
 
 print(f'The correlation are {0}, {1}, {2} between pso and pearson, pso and sam, pearson and sam'
       , corr_pso_corr, corr_pso_sam, corr_corr_sam)
+print()
