@@ -3,7 +3,7 @@ require(data.table)
 
 ##
 # Estimate NLL on webtext.test using 4 models
-d_webtext_glm10b <- fread("/Users/james/Workspace/gpt-2-output-dataset/james/glm10b/webtext.train_glm10b.nll.csv")
+d_webtext_glm10b <- fread("/Users/james/Workspace/gpt-2-output-dataset/james/glm10b/5273_sample/webtext.train.model=.csv")
 # d_webtext_human <- fread("/Users/james/Workspace/gpt-2-output-dataset/data")
 
 # d_webtext_medium <- fread("plot/webtext.test.model=gpt2-medium.freq_power.csv")

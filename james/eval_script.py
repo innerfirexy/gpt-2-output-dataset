@@ -12,19 +12,6 @@ import os
 # Set TOKENIZERS_PARALLELISM to 'true' or 'false' to avoid warning
 os.environ["TOKENIZERS_PARALLELISM"] = "true"
 
-'''
-
-mauve score: 0.1800960731030162
-rep-2 score: 37.73
-rep-3 score: 32.9
-rep-4 score: 30.05
-diversity score: 0.29227327415000004
-coherence score: 0.5599484690183022
-bleu score: 0.144393291415524
-self-bleu score: 0.39390262005326115
-'''
-
-
 ###############
 # Data Loader #
 ###############
@@ -158,7 +145,7 @@ if __name__ == "__main__":
     split = "train" # reference data source (train / valid / test)
   
     # load original human & model texts
-    p_text_ = load_gpt2_dataset("/home/james/Workspace/gpt-2-output-dataset/data/webtext.test.jsonl") # human text
+    p_text_ = load_gpt2_dataset("/Users/james/Workspace/gpt-2-output-dataset/james/glm10b/5273_sample/webtext.train.jsonl") # human text
     q_text_ = load_gpt2_dataset("/home/james/Workspace/gpt-2-output-dataset/james/glm10b/webtext.train_glm10b.jsonl") # model text
 
     # tokenization & batch_decode
