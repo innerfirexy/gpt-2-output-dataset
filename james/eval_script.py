@@ -2,13 +2,14 @@ import json
 import numpy as np
 from tqdm import tqdm
 import mauve
-from transformers import AutoTokenizer 
+from transformers import AutoTokenizer
 from simctg.evaluation import measure_repetition_and_diversity
 from simcse import SimCSE
 from Bleu import Bleu
 from SelfBleu import SelfBleu
 
 import os
+
 # Set TOKENIZERS_PARALLELISM to 'true' or 'false' to avoid warning
 os.environ["TOKENIZERS_PARALLELISM"] = "true"
 
@@ -21,10 +22,10 @@ def load_gpt2_dataset(json_file_name, num_examples=float("inf")):
     for i, line in tqdm(enumerate(open(json_file_name))):
         try:
             texts.append(json.loads(line)["text"])
-        except json.decoder.JSONDecodeError: # skip to next line when encountering wrong string format
+        except json.decoder.JSONDecodeError:  # skip to next line when encountering wrong string format
             continue
-   
-    return texts # [gen_text1, gen_text2, ...]
+
+    return texts  # [gen_text1, gen_text2, ...]
 
 
 def load_get2_pair(json_file_name, num_examples=float("inf")):
@@ -32,11 +33,13 @@ def load_get2_pair(json_file_name, num_examples=float("inf")):
     print(f"Loading data from {json_file_name}......")
     for i, line in tqdm(enumerate(open(json_file_name))):
         try:
-            texts.append((json.loads(line)["prompt_text"], json.loads(line)["gen_text"]))
-        except json.decoder.JSONDecodeError: # skip to next line when encountering wrong string format
+            texts.append(
+                (json.loads(line)["prompt_text"], json.loads(line)["gen_text"])
+            )
+        except json.decoder.JSONDecodeError:  # skip to next line when encountering wrong string format
             continue
 
-    return texts # [(prompt_text1, gen_text1), (prompt_text2, gen_text2), ...]
+    return texts  # [(prompt_text1, gen_text1), (prompt_text2, gen_text2), ...]
 
 
 #########
@@ -52,10 +55,17 @@ def compute_mauve(human_text, gen_text, max_len):
     :return mauve_score: MAUVE score of given text with reference to webtext
     
     """
-    
+
     # call mauve.compute_mauve using raw text on GPU 0; each generation is truncated to {tgt_len} tokens
-    mauve_score = mauve.compute_mauve(p_text=human_text, q_text=gen_text, device_id=0, max_text_length=max_len, verbose=False, featurize_model_name="gpt2").mauve
-    
+    mauve_score = mauve.compute_mauve(
+        p_text=human_text,
+        q_text=gen_text,
+        device_id=0,
+        max_text_length=max_len,
+        verbose=False,
+        featurize_model_name="gpt2",
+    ).mauve
+
     return mauve_score
 
 
@@ -73,9 +83,9 @@ def compute_rep_div(gen_text):
     :return div_score: diversity score of given text
     
     """
-    
+
     rep_2, rep_3, rep_4, div_score = measure_repetition_and_diversity(gen_text)
-    
+
     return rep_2, rep_3, rep_4, div_score
 
 
@@ -90,13 +100,13 @@ def compute_coh(file_name):
     :return coh_score: coherence score of given text with reference to its prefix
     
     """
-    
+
     model = SimCSE("princeton-nlp/sup-simcse-bert-base-uncased")
-    sent_lst = load_get2_pair(file_name) # "opttext_pair.jsonl"
+    sent_lst = load_get2_pair(file_name)  # "opttext_pair.jsonl"
     pp_lst, yy_lst = zip(*sent_lst)
     similarities = np.array(model.similarity(list(pp_lst), list(yy_lst)))
-    coh_score = similarities.trace() / len(similarities) 
-    
+    coh_score = similarities.trace() / len(similarities)
+
     return coh_score
 
 
@@ -111,12 +121,12 @@ def compute_bleu(human_text, gen_text):
     :param gen_text: model-generated text
     :return bleu_score: BLEU score of given text with reference to webtext
     """
-    
+
     bleu = Bleu()
-    bleu.real_data = human_text # human text
-    bleu.test_data = gen_text # model text
+    bleu.real_data = human_text  # human text
+    bleu.test_data = gen_text  # model text
     bleu_score = bleu.get_score()
-    
+
     return bleu_score
 
 
@@ -131,34 +141,42 @@ def compute_self_bleu(gen_text):
     :return self_bleu_score: Self-BLEU score of given text
     
     """
-    
+
     self_bleu = SelfBleu()
-    self_bleu.test_data = gen_text # model text
+    self_bleu.test_data = gen_text  # model text
     self_bleu_score = self_bleu.get_score()
-    
+
     return self_bleu_score
 
 
 if __name__ == "__main__":
     # hyper-parameters
-    tgt_len = 128   # max text length (1024 / 256 / 128); 128 is used in Contrastive Decoding code
-    split = "train" # reference data source (train / valid / test)
-  
+    tgt_len = 12  # max text length (1024 / 256 / 128); 128 is used in Contrastive Decoding code
+    split = "train"  # reference data source (train / valid / test)
+
     # load original human & model texts
-    p_text_ = load_gpt2_dataset("/Users/james/Workspace/gpt-2-output-dataset/james/glm10b/5273_sample/webtext.train.jsonl") # human text
-    q_text_ = load_gpt2_dataset("/home/james/Workspace/gpt-2-output-dataset/james/glm10b/webtext.train_glm10b.jsonl") # model text
+    p_text_ = load_gpt2_dataset(
+        "/home/james/Workspace/gpt-2-output-dataset/data/webtext.test.jsonl"
+    )  # human text
+    q_text_ = load_gpt2_dataset(
+        "/home/james/Workspace/gpt-2-output-dataset/james/glm10b/5273_sample/webtext.train.jsonl"
+    )  # model text
 
     # tokenization & batch_decode
     tokenizer = AutoTokenizer.from_pretrained("gpt2")
     x = tokenizer(p_text_, truncation=True, max_length=tgt_len)["input_ids"]
     y = tokenizer(q_text_, truncation=True, max_length=tgt_len)["input_ids"]
     print("Performing batch_decode......")
-    xxyy = [(xx, yy) for (xx, yy) in tqdm(zip(x, y), total=min(len(x), len(y))) if len(xx) <= tgt_len and len(yy) <= tgt_len]
+    xxyy = [
+        (xx, yy)
+        for (xx, yy) in tqdm(zip(x, y), total=min(len(x), len(y)))
+        if len(xx) <= tgt_len and len(yy) <= tgt_len
+    ]
     x, y = zip(*xxyy)
 
     # map back to texts
-    p_text = tokenizer.batch_decode(x) # [:target_num]
-    q_text = tokenizer.batch_decode(y) # [:target_num]
+    p_text = tokenizer.batch_decode(x)  # [:target_num]
+    q_text = tokenizer.batch_decode(y)  # [:target_num]
 
     # compute scores
     mauve_score = compute_mauve(p_text, q_text, tgt_len)
@@ -170,7 +188,9 @@ if __name__ == "__main__":
     print("rep-4 score:", rep_4)
     print("diversity score:", div_score)
 
-    coh_score = compute_coh(file_name="/home/james/Workspace/gpt-2-output-dataset/james/glm10b/prompt_text_gen_text.jsonl")
+    coh_score = compute_coh(
+        file_name="/home/james/Workspace/gpt-2-output-dataset/james/glm10b/5273_sample/webtext.train.pair.jsonl"
+    )
     print("coherence score:", coh_score)
 
     bleu_score = compute_bleu(p_text, q_text)
@@ -178,4 +198,4 @@ if __name__ == "__main__":
 
     self_bleu_score = compute_self_bleu(q_text)
     print("self-bleu score:", self_bleu_score)
-            
+
