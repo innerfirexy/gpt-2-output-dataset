@@ -3,20 +3,20 @@ require(data.table)
 
 ##
 # Estimate NLL on webtext.test using 4 models
-d_webtext_glm10b <- fread("/Users/james/Workspace/gpt-2-output-dataset/james/glm10b/5273_sample/webtext.train.model=.csv")
-# d_webtext_human <- fread("/Users/james/Workspace/gpt-2-output-dataset/data")
+d_webtext_glm10b <- fread("/Users/james/Workspace/gpt-2-output-dataset/james/glm10b/5273_sample/webtext.train.model.zeropadded.csv")
+d_webtext_human <- fread("/Users/james/Workspace/gpt-2-output-dataset/james/glm10b/5273_sample/webtext.test.model.zeropadded.csv")
 
 # d_webtext_medium <- fread("plot/webtext.test.model=gpt2-medium.freq_power.csv")
 # d_webtext_large <- fread("plot/webtext.test.model=gpt2-large.freq_power.csv")
 # d_webtext_xl <- fread("plot/webtext.test.model=gpt2-xl.freq_power.csv") # nolint
 
 d_webtext_glm10b$model = "glm10b"
-# d_webtext_human$model = "human"
+d_webtext_human$model = "human"
 # d_webtext_medium$model = "gpt2-medium"
 # d_webtext_large$model = "gpt2-large"
 # d_webtext_xl$model = "gpt2-xl"
 
-d_webtext_c <- rbindlist(list(d_webtext_glm10b))
+d_webtext_c <- rbindlist(list(d_webtext_glm10b, d_webtext_human))
 p_webtext_c <- ggplot(d_webtext_c, aes(freq, power)) +
   geom_smooth(aes(linetype = model, fill = model, colour = model))
 ggsave("/Users/james/Workspace/gpt-2-output-dataset/james/glm10b/webtext.train.glm10b_frequency_power.pdf", plot=p_webtext_c)
