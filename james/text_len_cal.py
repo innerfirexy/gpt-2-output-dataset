@@ -3,7 +3,7 @@ from transformers import AutoTokenizer
 
 
 path = "/Users/james/Workspace/gpt-2-output-dataset/james/glm10b/5273_sample/"
-with open(path + "webtext.train.model.jsonl") as f:
+with open(path + "webtext.test.jsonl") as f:
     df = pd.read_json(f, lines=True)
 
 tokenizer = AutoTokenizer.from_pretrained("gpt2")
