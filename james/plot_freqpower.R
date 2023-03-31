@@ -6,14 +6,14 @@ require(data.table)
 d_webtext_glm10b <- fread("/Users/james/Workspace/gpt-2-output-dataset/james/glm10b/5273_sample/webtext.train.model=.csv") # nolint: line_length_linter.
 d_webtext_human <- fread("/Users/james/Workspace/gpt-2-output-dataset/james/glm10b/5273_sample/webtext.test.model=.csv") # nolint: line_length_linter.
 
-d_webtext_glm10bzeropad <- fread("/Users/james/Workspace/gpt-2-output-dataset/james/glm10b/5273_sample/webtext.train.model.zeropadded.csv") # nolint: line_length_linter.
-d_webtext_humanzeropad <- fread("/Users/james/Workspace/gpt-2-output-dataset/james/glm10b/5273_sample/webtext.test.model.zeropadded.csv") # nolint: line_length_linter.
+d_webtext_glm10bzeropad <- fread("/Users/james/Workspace/gpt-2-output-dataset/james/glm10b/5273_sample/webtext.train.model.infpadded.csv") # nolint: line_length_linter.
+d_webtext_humanzeropad <- fread("/Users/james/Workspace/gpt-2-output-dataset/james/glm10b/5273_sample/webtext.test.model.infpadded.csv") # nolint: line_length_linter.
 # d_webtext_xl <- fread("plot/webtext.test.model=gpt2-xl.freq_power.csv") # nolint
 
 d_webtext_glm10b$model = "glm10b"
 d_webtext_human$model = "human"
-d_webtext_glm10bzeropad$model = "glm10bzeropad"
-d_webtext_humanzeropad$model = "humanzeropad"
+d_webtext_glm10bzeropad$model = "glm10infpad"
+d_webtext_humanzeropad$model = "humaninfpad"
 # d_webtext_xl$model = "gpt2-xl"
 
 d_webtext_c <- rbindlist(list(d_webtext_glm10b, d_webtext_human, d_webtext_glm10bzeropad, d_webtext_humanzeropad)) # nolint: line_length_linter.
