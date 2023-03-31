@@ -2,19 +2,17 @@ import pandas as pd
 from transformers import AutoTokenizer
 
 
-path = "/Users/james/Workspace/gpt-2-output-dataset/data/"
-with open(path + "webtext.test.jsonl") as f:
+path = "/Users/james/Workspace/gpt-2-output-dataset/james/glm10b/5273_sample/"
+with open(path + "webtext.train.model.jsonl") as f:
     df = pd.read_json(f, lines=True)
 
 tokenizer = AutoTokenizer.from_pretrained("gpt2")
 
 result = [0] * 5
 for index, row in df.iterrows():
-    # print(text))
-    # print(len(text)))
     text = row["text"]
     text = tokenizer(text, truncation=True, max_length=1024)["input_ids"]
-    # print(text)
+    # print(text, type(text), len(text))
     if len(text) >= 0 and len(text) < 200:
         result[0] += 1
     elif len(text) >= 200 and len(text) < 400:
