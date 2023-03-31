@@ -2,8 +2,8 @@ import pandas as pd
 from transformers import AutoTokenizer
 
 
-path = "/Users/james/Workspace/gpt-2-output-dataset/james/glm10b/5273_sample/"
-with open(path + "webtext.train.sorted.jsonl") as f:
+path = "/Users/james/Workspace/gpt-2-output-dataset/data/"
+with open(path + "webtext.test.jsonl") as f:
     df = pd.read_json(f, lines=True)
 
 tokenizer = AutoTokenizer.from_pretrained("gpt2")
@@ -27,4 +27,5 @@ for index, row in df.iterrows():
         result[4] += 1
 
 print(result, sum(result))
-# [3554, 19, 1, 1, 1697] 5272
+# [3554, 19, 1, 1, 1697] 5272 GLM10B
+# [1002, 944, 751, 526, 1777] 5000 Human
