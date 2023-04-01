@@ -1,9 +1,14 @@
 import pandas as pd
 from transformers import AutoTokenizer
 
+'''
+
+This script is used to calculate the length of the text in the dataset only.
+
+'''
 
 path = "/Users/james/Workspace/gpt-2-output-dataset/james/glm10b/5273_sample/"
-with open(path + "webtext.test.jsonl") as f:
+with open(path + "webtext.train.model.jsonl") as f:
     df = pd.read_json(f, lines=True)
 
 tokenizer = AutoTokenizer.from_pretrained("gpt2")
