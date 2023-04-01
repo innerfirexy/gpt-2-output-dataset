@@ -151,15 +151,15 @@ def compute_self_bleu(gen_text):
 
 if __name__ == "__main__":
     # hyper-parameters
-    tgt_len = 12  # max text length (1024 / 256 / 128); 128 is used in Contrastive Decoding code
+    tgt_len = 200  # max text length (1024 / 256 / 128); 128 is used in Contrastive Decoding code
     split = "train"  # reference data source (train / valid / test)
 
     # load original human & model texts
     p_text_ = load_gpt2_dataset(
-        "/home/james/Workspace/gpt-2-output-dataset/data/webtext.test.jsonl"
+        "/Users/james/Workspace/gpt-2-output-dataset/james/split_human/webtext.test.split.0.jsonl"
     )  # human text
     q_text_ = load_gpt2_dataset(
-        "/home/james/Workspace/gpt-2-output-dataset/james/glm10b/5273_sample/webtext.train.jsonl"
+        "/Users/james/Workspace/gpt-2-output-dataset/james/split_gen/webtext.train.split.0.jsonl"
     )  # model text
 
     # tokenization & batch_decode
@@ -189,7 +189,7 @@ if __name__ == "__main__":
     print("diversity score:", div_score)
 
     coh_score = compute_coh(
-        file_name="/home/james/Workspace/gpt-2-output-dataset/james/glm10b/5273_sample/webtext.train.pair.jsonl"
+        file_name="/Users/james/Workspace/gpt-2-output-dataset/james/split_gen pair/webtext.train.split.0.jsonl"
     )
     print("coherence score:", coh_score)
 
