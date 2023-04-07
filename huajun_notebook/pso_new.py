@@ -24,8 +24,8 @@ def compute_freqs_powers(data):
         x = data[i]
         freq_x = fftshift(fftfreq(x.shape[-1]))
         sp_x = fftshift(fft(x))
-        freq_x = freq_x[len(freq_x)//2:] # freq_x[freq_x >= 0]
-        sp_x = sp_x[len(sp_x)//2:] # sp_x[freq_x >= 0]
+        freq_x = freq_x[len(freq_x)//2:].real # freq_x[freq_x >= 0]
+        sp_x = sp_x[len(sp_x)//2:].real # sp_x[freq_x >= 0]
         freqs.append(freq_x)
         powers.append(sp_x)
     return freqs, powers
@@ -33,8 +33,8 @@ def compute_freqs_powers(data):
 def compute_freqs_powers_new(x):
     freq_x = fftshift(fftfreq(x.shape[-1]))
     sp_x = fftshift(fft(x))
-    freq_x = freq_x[len(freq_x)//2:] # freq_x[freq_x >= 0]
-    sp_x = sp_x[len(sp_x)//2:] # sp_x[freq_x >= 0]
+    freq_x = freq_x[len(freq_x)//2:].real # freq_x[freq_x >= 0]
+    sp_x = sp_x[len(sp_x)//2:].real # sp_x[freq_x >= 0]
     return freq_x, sp_x
 
 
@@ -42,7 +42,7 @@ def fp_pipeline(data_file, N=np.inf) -> pd.DataFrame:
     data_list = _read_data(data_file) # Read all data
     print(f"0406 debug len(data_list) is {len(data_list)}")
     data_arr = np.concatenate([np.asarray(d) for d in data_list])
-    print(f"0406 debug data_arr shape {data_arr.shape}")
+    
     mean_data = np.mean(data_arr)
     sd_data = np.std(data_arr)
 
@@ -50,8 +50,10 @@ def fp_pipeline(data_file, N=np.inf) -> pd.DataFrame:
         data_norm = [(np.asarray(d) - mean_data)/sd_data for d in data_list[:N]]
     else:
         data_norm = [(np.asarray(d) - mean_data)/sd_data for d in data_list]
-    freqs, powers = compute_freqs_powers_new(data_arr)
-    print(freqs[:100], powers[:100])
+    data_norm_arr = np.concatenate(data_norm)
+    print(f"0407 debug data_norm_arr len {len(data_norm_arr)}")
+    freqs, powers = compute_freqs_powers_new(data_norm_arr) # non-norm
+    # freqs, powers = compute_freqs_powers(data_norm)
     df = pd.DataFrame.from_dict({
         'freq': freqs,
         'power': powers
@@ -60,6 +62,7 @@ def fp_pipeline(data_file, N=np.inf) -> pd.DataFrame:
 
 def nll2csv(source, split):
     input_path = f"../data/{source}.{split}.model=.nll"
+    print(f"processing {input_path}")
     output_path = f'../plot/{source}_freq_power_fft_{split}.csv'
     df = fp_pipeline(input_path, N=5000) # read 5000 lines for each file
     df.to_csv(output_path, index=False)
@@ -72,10 +75,10 @@ sources = ['webtext', 'small-117M',  'small-117M-k40',
 
 nll2csv('webtext', 'test')
 
-# splits = ['train', 'valid', 'test']
-# for source in sources:
-#     for split in splits:
-#         nll2csv(source, split)
+splits = ['train', 'valid', 'test']
+for source in sources:
+    for split in splits:
+        nll2csv(source, split)
 
 # input_file = '../data/webtext.test.model=.nll'
 # with open(input_file, 'r') as f:

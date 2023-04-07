@@ -47,7 +47,7 @@ def load_model(args):
     tokenizer.pad_token = tokenizer.eos_token
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model.to(device)
-
+    print(f"Model {pretrained_weights} loaded")
     return model, tokenizer
 
 @torch.no_grad()
@@ -89,6 +89,42 @@ def process_single(model, tokenizer, args):
                 print('res:', res)
                 raise
             else:
+                fw.write(f'{res_str}\n')
+
+# function written by chatGPT, not tested
+@torch.no_grad()
+def process_batch(model, tokenizer, args, batch_size=16):
+    device = model.device
+    criterian = nn.NLLLoss(reduction='none')
+    log_softmax = nn.LogSoftmax(dim=1)
+
+    data = _load_split('data', source=args.source, split=args.split)
+    if args.output:
+        output_file = args.output
+    else:
+        output_file = os.path.join(args.data_dir, f'{args.source}.{args.split}.model={args.model}.nll')
+
+    with open(output_file, 'w') as fw:
+        for i in tqdm(range(0, len(data), batch_size)):
+            batch = data[i:i+batch_size]
+            encoded_input = tokenizer(batch, return_tensors='pt', padding=True).to(device)
+            input_ids = encoded_input['input_ids']
+
+            output = model(**encoded_input, labels=input_ids)
+            logits = output.logits.to(device)
+            target = encoded_input['input_ids'].to(device)
+
+            logits = rearrange(logits, 'B L V -> B V L')
+            shift_logits = logits[..., :, :-1]
+            shift_target = target[..., 1:]
+
+            nll_loss = criterian(log_softmax(shift_logits), shift_target).squeeze()
+            res = nll_loss.tolist()
+
+            for r in res:
+                if not isinstance(r, list):
+                    r = [r]
+                res_str = ' '.join(f'{num:.4f}' for num in r)
                 fw.write(f'{res_str}\n')
 
 
