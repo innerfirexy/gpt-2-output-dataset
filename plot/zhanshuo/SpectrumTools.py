@@ -4,6 +4,7 @@ import pandas as pd
 from pandas import DataFrame
 from scipy import interpolate
 from scipy.stats import pearsonr
+from scipy.stats import spearmanr
 
  # # 从csv文件中读出每个区间，区分方法为每个区间必须升序
 def getInterval(fre_power_filepath:str):
@@ -24,7 +25,7 @@ def getF(freq_list:list, power_list:list):
     f = interpolate.interp1d(freq_list, power_list, fill_value="extrapolate")
     return f
 
- # # 根据两个文件内容， 返回每个区间固定且相同间隔的x对应的y值，区间取值为[0, 0.5],区间外的点是否需要计算？ or直接截断 比如0.48 去预测 0.5
+ # # 根据两个文件内容， 返回每个区间固定且相同间隔的x对应的y值，区间取值为[0, 0.5]
 def alignPoints(filepath1:str, filepath2:str):
 
     freq_list_list_1, power_list_list_1 = getInterval(filepath1)
@@ -41,8 +42,14 @@ def alignPoints(filepath1:str, filepath2:str):
         func1 = getF(freq_list1, power_list1)
         func2 = getF(freq_list2, power_list2)
 
+        len1 = len(freq_list1)
+        len2 = len(freq_list2)
+
+        if len2 < len1:
+            len1 = len2 
+
         # interpolate
-        x = np.linspace(0, 0.5, 200)
+        x = np.linspace(0, 0.5, len1)
         y1 = func1(x)
         y2 = func2(x)
         y1listlist.append(y1)
@@ -84,6 +91,19 @@ def getPSO(filepath1:str, filepath2:str):
         pso_list.append(round(area_floor / area_roof, 4))
 
     return area_floor_list, area_roof_list, pso_list
+
+
+def getSpearmanr(filepath1:str, filepath2:str):
+    xlist, y1listlist, y2listlist = alignPoints(filepath1, filepath2)
+    corr_list = []
+
+    for i in range(len(y1listlist)):
+        y1list = y1listlist[i]
+        y2list = y2listlist[i]
+
+        corr, _ = spearmanr(y1list, y2list)
+        corr_list.append(corr)
+    return corr_list
 
  # # 为每个fre区间计算PearsonCorelation
 def getPearson(filepath1:str, filepath2:str):
