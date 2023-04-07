@@ -65,7 +65,7 @@ def process_single(model, tokenizer, args):
     with open(output_file, 'w') as fw:
         print("Computing entropy......")
         for line in tqdm(data, total=len(data)):
-            encoded_input = tokenizer(line, return_tensors='pt').to(device)
+            encoded_input = tokenizer(line, truncation=True, max_length=1024, return_tensors='pt').to(device)
             input_ids = encoded_input['input_ids']
 
             output = model(**encoded_input, labels= input_ids)
