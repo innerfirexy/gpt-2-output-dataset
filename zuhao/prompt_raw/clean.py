@@ -4,7 +4,7 @@ from tqdm import tqdm
 from nltk.tokenize import word_tokenize
 
 '''
-This script is to clean all the raw text from wikitext/truenews/story domains.
+This script is to clean all the source text from wikitext/truenews/story domains and return their prompt text.
 '''
 
 # Set the maximum length and number of extractions
