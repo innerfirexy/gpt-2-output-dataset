@@ -4,14 +4,14 @@ import torch
 from tqdm import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer, set_seed
 
-model_name = "opt-125m"
-model = AutoModelForCausalLM.from_pretrained(f"facebook/{model_name}", torch_dtype=torch.float16).cuda()
+# model_name = "opt-125m"
+# model = AutoModelForCausalLM.from_pretrained(f"facebook/{model_name}", torch_dtype=torch.float16).cuda()
 
-# the fast tokenizer currently does not work correctly
-tokenizer = AutoTokenizer.from_pretrained(f"facebook/{model_name}", use_fast=False)
+# # the fast tokenizer currently does not work correctly
+# tokenizer = AutoTokenizer.from_pretrained(f"facebook/{model_name}", use_fast=False)
 
 # opt to gpt2
-model_name = "gpt-2"
+model_name = "gpt2"
 model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16).cuda()
 
 # the fast tokenizer currently does not work correctly
@@ -20,8 +20,9 @@ tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
 # get the prompt_text
 prompt_list = []
 opt_list = []
+prompt_text = 'story_vary'
 print("Reading prompt_text......")
-with open("story_vary.txt", "r") as file:
+with open(f"../zuhao/prompt_raw/{prompt_text}.txt", "r", encoding='utf-8') as file:
     content_lines = file.readlines()
 prompt_list = [content_lines[i].rstrip('\n') for i in range(1, 15000, 3)]
 for idx, prompt in tqdm(enumerate(prompt_list)):
@@ -42,7 +43,7 @@ for idx, prompt in tqdm(enumerate(prompt_list), total=len(prompt_list)):
 
 # output generated text
 print("Wrting opt_text......")
-with open("webtext.train_opt_125m.jsonl", "w") as file:
+with open(f"../data/gpt2-generated-from-prompt/{model_name}-{prompt_text}.jsonl", "w") as file:
     for line in tqdm(opt_list, total=len(opt_list)):
         json.dump(line, file)
         file.write("\n")
