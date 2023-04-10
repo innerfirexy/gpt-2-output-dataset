@@ -1,5 +1,4 @@
 import re
-import nltk
 import pandas as pd
 from tqdm import tqdm
 from nltk.tokenize import word_tokenize
@@ -8,11 +7,11 @@ from nltk.tokenize import word_tokenize
 This script is to clean all the raw text from wikitext/truenews/story domains.
 '''
 
-##### wikitext_35.txt #####
-
-# Set the maximum length
+# Set the maximum length and number of extractions
 prompt_len = 35
-text_len = 5000
+file_len = 5000
+
+##### wikitext_35.txt #####
 
 # Load the text from the file
 with open("/Users/yangzuhao/Downloads/wikitext-103/wikitext.txt", "r") as f:
@@ -41,7 +40,7 @@ for section in tqdm(sections, total=len(sections)):
             result.append(short_content)
 
     # Break the loop if there are 5,000 articles
-    if len(result) >= text_len:
+    if len(result) >= file_len:
         break
 
 # Write the 35-token sequences to a new text file
@@ -93,7 +92,7 @@ for _, row in tqdm(df.iterrows()):
                 counter_world += 1
 
     # Break the loop if there are 5,000 prompts
-    if len(result) >= 5000:
+    if len(result) >= file_len:
         break
 
 # Write the 35-token sequences to a new text file
