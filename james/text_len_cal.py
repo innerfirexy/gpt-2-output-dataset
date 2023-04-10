@@ -33,4 +33,4 @@ print(result, sum(result))
 
 # [4978, 20, 1, 0, 1] 5000 Bloom_560m News
 # [4924, 63, 9, 4, 0] 5000 Bloom_560m Story
-# [4928, 61, 8, 1, 2] 5000 Bloom_560m_TrueNews
+# [4928, 61, 8, 1, 2] 5000 Bloom_560m Wiki
