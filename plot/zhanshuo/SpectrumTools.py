@@ -42,14 +42,14 @@ def alignPoints(filepath1:str, filepath2:str):
         func1 = getF(freq_list1, power_list1)
         func2 = getF(freq_list2, power_list2)
 
-        len1 = len(freq_list1)
-        len2 = len(freq_list2)
+        # len1 = len(freq_list1)
+        # len2 = len(freq_list2)
 
-        if len2 < len1:
-            len1 = len2 
+        # if len2 < len1:
+        #     len1 = len2 
 
         # interpolate
-        x = np.linspace(0, 0.5, len1)
+        x = np.linspace(0, 0.5, 1000)
         y1 = func1(x)
         y2 = func2(x)
         y1listlist.append(y1)
