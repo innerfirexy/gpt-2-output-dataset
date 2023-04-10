@@ -55,6 +55,13 @@ def compute_fft(data):
 
 
 def fp_pipeline(data_file, method, n_samples=np.inf, normalize=False) -> pd.DataFrame:
+    """
+    :param data_file:
+    :param method:
+    :param n_samples:
+    :param normalize: boolean, whether to normalize the data
+    :return:
+    """
     data_list = _read_data(data_file) # Read all data
     data_arr = np.concatenate([np.asarray(d) for d in data_list])
     mean_data = np.mean(data_arr)
@@ -76,8 +83,13 @@ def fp_pipeline(data_file, method, n_samples=np.inf, normalize=False) -> pd.Data
         'freq': np.concatenate(freqs),
         'power': np.concatenate(powers)
     })
-
     return df
+
+######
+# About normalization:
+# The following post suggest that we should normalize the input signal by dividing by the max.
+# https://www.mathworks.com/matlabcentral/answers/356692-how-to-normalize-a-fft-to-plot-in-frequency-domain
+######
 
 
 def test():

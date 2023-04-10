@@ -104,6 +104,14 @@ p <- ggplot(d2.period, aes(freq, power)) +
   geom_smooth(aes(linetype = model, fill = model, colour = model))
 ggsave("webtext.4estimators.periodogram.pdf", plot=p)
 
+# Periodogram, normalized
+period_files <- paste(data_dir, base_names2, sep = "", ".periodogram.normalized.csv")
+d2.period.normalized <- read_all_gpt2_files(period_files)
+p <- ggplot(d2.period.normalized, aes(freq, power)) +
+  geom_smooth(aes(linetype = model, fill = model, colour = model))
+ggsave("webtext.4estimators.periodogram.normalized.pdf", plot=p)
+
+
 # FFT
 fft_files <- paste(data_dir, base_names2, sep = "", ".fft.csv")
 d2.fft <- read_all_gpt2_files(fft_files)
@@ -114,6 +122,13 @@ ggsave("webtext.4estimators.fft.pdf", plot=p)
 p <- ggplot(d2.fft, aes(freq, log10(power^2))) +
   geom_smooth(aes(linetype = model, fill = model, colour = model))
 ggsave("webtext.4estimators.fft.log10.pdf", plot=p)
+
+# FFT, normalized
+fft_files <- paste(data_dir, base_names2, sep = "", ".fft.normalized.csv")
+d2.fft.normalized <- read_all_gpt2_files(fft_files)
+p <- ggplot(d2.fft.normalized, aes(freq, power)) +
+  geom_smooth(aes(linetype = model, fill = model, colour = model))
+ggsave("webtext.4estimators.fft.normalized.pdf", plot=p)
 
 # Plot in polar coordinates
 p <- ggplot(d2.fft, aes(freq, log10(power^2))) +
