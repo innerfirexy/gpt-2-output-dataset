@@ -44,7 +44,8 @@ def compute_fft(data):
     for i in tqdm.tqdm(range(len(data))):
         x = data[i]
         try:
-            freq_x = fftshift(fftfreq(x.shape[-1]))
+            N = x.shape[-1]
+            freq_x = fftshift(fftfreq(N))
             sp_x = fftshift(fft(x)).real
         except Exception:
             print(f'Error in sample {i}: {x}')
@@ -87,21 +88,25 @@ def fp_pipeline(data_file, method, n_samples=np.inf, normalize=False) -> pd.Data
 
 ######
 # About normalization:
-# The following post suggest that we should normalize the input signal by dividing by the max.
+# The following post points out that the frequency spectrum obtained from fft() needs be scaled by 1/N.
+# I think this is NOT correct.
 # https://www.mathworks.com/matlabcentral/answers/356692-how-to-normalize-a-fft-to-plot-in-frequency-domain
+# By comparing the scipy.signal.fft and wikipedia's definition of discrete fourier transform,
+# https://docs.scipy.org/doc/scipy/reference/generated/scipy.fft.fft.html#scipy.fft.fft
+# https://en.wikipedia.org/wiki/Discrete_Fourier_transform
 ######
 
 
 def test():
     data_dir = '../data/data_gpt2_old/'
-    # input_files = ['small-117M.test.model=gpt2.nll',
-    #                'small-117M.test.model=gpt2-medium.nll',
-    #                'small-117M.test.model=gpt2-large.nll',
-    #                'small-117M.test.model=gpt2-xl.nll']
-    input_files = ['webtext.test.model=gpt2.nll',
-                   'webtext.test.model=gpt2-medium.nll',
-                   'webtext.test.model=gpt2-large.nll',
-                   'webtext.test.model=gpt2-xl.nll']
+    input_files = ['small-117M.test.model=gpt2.nll',
+                   'small-117M.test.model=gpt2-medium.nll',
+                   'small-117M.test.model=gpt2-large.nll',
+                   'small-117M.test.model=gpt2-xl.nll']
+    # input_files = ['webtext.test.model=gpt2.nll',
+    #                'webtext.test.model=gpt2-medium.nll',
+    #                'webtext.test.model=gpt2-large.nll',
+    #                'webtext.test.model=gpt2-xl.nll']
 
     # Periodogram, normalized
     for input_file in input_files:
