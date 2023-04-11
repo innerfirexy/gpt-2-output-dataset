@@ -13,7 +13,10 @@ parser.add_argument('--output',
                     default='',
                     help='output file or dir')
 parser.add_argument('--N', type=int, default=np.inf, help='number of samples')
-parser.add_argument('--method', type=str, default='fft', choices=['periodogram', 'fft'])
+parser.add_argument('--method',
+                    type=str,
+                    default='fft',
+                    choices=['periodogram', 'fft'])
 
 
 def _read_data(data_file, N=np.inf):
@@ -31,6 +34,7 @@ def _read_data(data_file, N=np.inf):
                 break
     return data
 
+
 def compute_periodogram(data):
     freqs, powers = [], []
     for i in tqdm.tqdm(range(len(data))):
@@ -39,23 +43,26 @@ def compute_periodogram(data):
         powers.append(p)
     return freqs, powers
 
+
 def compute_fft(data):
     freqs, powers = [], []
     for i in tqdm.tqdm(range(len(data))):
         x = data[i]
         try:
-            N = x.shape[-1]
-            freq_x = fftshift(fftfreq(N))
+            freq_x = fftshift(fftfreq(x.shape[-1]))
             sp_x = fftshift(fft(x)).real
         except Exception:
             print(f'Error in sample {i}: {x}')
             raise
-        freqs.append(freq_x[len(freq_x)//2:])
-        powers.append(sp_x[len(sp_x)//2:])
+        freqs.append(freq_x[len(freq_x) // 2:])
+        powers.append(sp_x[len(sp_x) // 2:])
     return freqs, powers
 
 
-def fp_pipeline(data_file, method, n_samples=np.inf, normalize=False) -> pd.DataFrame:
+def fp_pipeline(data_file,
+                method,
+                n_samples=np.inf,
+                normalize=False) -> pd.DataFrame:
     """
     :param data_file:
     :param method:
@@ -63,7 +70,7 @@ def fp_pipeline(data_file, method, n_samples=np.inf, normalize=False) -> pd.Data
     :param normalize: boolean, whether to normalize the data
     :return:
     """
-    data_list = _read_data(data_file) # Read all data
+    data_list = _read_data(data_file)  # Read all data
     data_arr = np.concatenate([np.asarray(d) for d in data_list])
     mean_data = np.mean(data_arr)
     sd_data = np.std(data_arr)
@@ -73,7 +80,7 @@ def fp_pipeline(data_file, method, n_samples=np.inf, normalize=False) -> pd.Data
     else:
         data = [np.asarray(d) for d in data_list]
     if normalize:
-        data = [(d - mean_data)/sd_data for d in data]
+        data = [(d - mean_data) / sd_data for d in data]
 
     if method == 'periodogram':
         freqs, powers = compute_periodogram(data)
@@ -86,45 +93,44 @@ def fp_pipeline(data_file, method, n_samples=np.inf, normalize=False) -> pd.Data
     })
     return df
 
+
 ######
 # About normalization:
-# The following post points out that the frequency spectrum obtained from fft() needs be scaled by 1/N.
-# I think this is NOT correct.
+# The following post suggest that we should normalize the input signal by dividing by the max.
 # https://www.mathworks.com/matlabcentral/answers/356692-how-to-normalize-a-fft-to-plot-in-frequency-domain
-# By comparing the scipy.signal.fft and wikipedia's definition of discrete fourier transform,
-# https://docs.scipy.org/doc/scipy/reference/generated/scipy.fft.fft.html#scipy.fft.fft
-# https://en.wikipedia.org/wiki/Discrete_Fourier_transform
 ######
 
 
 def test():
-    data_dir = '../data/data_gpt2_old/'
-    input_files = ['small-117M.test.model=gpt2.nll',
-                   'small-117M.test.model=gpt2-medium.nll',
-                   'small-117M.test.model=gpt2-large.nll',
-                   'small-117M.test.model=gpt2-xl.nll']
-    # input_files = ['webtext.test.model=gpt2.nll',
-    #                'webtext.test.model=gpt2-medium.nll',
-    #                'webtext.test.model=gpt2-large.nll',
-    #                'webtext.test.model=gpt2-xl.nll']
+    data_dir = '/Users/james/Workspace/gpt-2-output-dataset/james/bloomz_560m/split_wiki/'
+    # input_files = ['small-117M.test.model=gpt2.nll',
+    #                'small-117M.test.model=gpt2-medium.nll',
+    #                'small-117M.test.model=gpt2-large.nll',
+    #                'small-117M.test.model=gpt2-xl.nll']
+    input_files = ['webtext.train.model=.bloom_560m.wiki.sorted.split.0.nll',
+                   'webtext.train.model=.bloom_560m.wiki.sorted.split.200.nll',
+                   'webtext.train.model=.bloom_560m.wiki.sorted.split.400.nll',
+                   'webtext.train.model=.bloom_560m.wiki.sorted.split.600.nll',
+                   'webtext.train.model=.bloom_560m.wiki.sorted.split.800.nll'
+    ]
 
-    # Periodogram, normalized
-    for input_file in input_files:
-        df = fp_pipeline(data_dir + input_file, 'periodogram', normalize=True)
-        output_file = data_dir + input_file[:-4] + '.periodogram.normalized.csv'
-        df.to_csv(output_file, index=False)
+    # # Periodogram, normalized
+    # for input_file in input_files:
+    #     df = fp_pipeline(data_dir + input_file, 'periodogram', normalize=True)
+    #     output_file = data_dir + input_file[:-4] + '.periodogram.normalized.csv'
+    #     df.to_csv(output_file, index=False)
 
-    # Periodogram, not normalized
-    for input_file in input_files:
-        df = fp_pipeline(data_dir + input_file, 'periodogram', normalize=False)
-        output_file = data_dir + input_file[:-4] + '.periodogram.csv'
-        df.to_csv(output_file, index=False)
+    # # Periodogram, not normalized
+    # for input_file in input_files:
+    #     df = fp_pipeline(data_dir + input_file, 'periodogram', normalize=False)
+    #     output_file = data_dir + input_file[:-4] + '.periodogram.csv'
+    #     df.to_csv(output_file, index=False)
 
-    # FFT, normalized
-    for input_file in input_files:
-        df = fp_pipeline(data_dir + input_file, 'fft', normalize=True)
-        output_file = data_dir + input_file[:-4] + '.fft.normalized.csv'
-        df.to_csv(output_file, index=False)
+    # # FFT, normalized
+    # for input_file in input_files:
+    #     df = fp_pipeline(data_dir + input_file, 'fft', normalize=True)
+    #     output_file = data_dir + input_file[:-4] + '.fft.normalized.csv'
+    #     df.to_csv(output_file, index=False)
 
     # FFT, not normalized
     for input_file in input_files:
