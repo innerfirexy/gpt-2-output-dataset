@@ -7,8 +7,8 @@ This script is used to calculate the length of the text in the dataset only.
 
 '''
 
-path = "/Users/james/Workspace/gpt-2-output-dataset/james/bloomz_560m/"
-with open(path + "webtext.train.bloom_560m.wiki.jsonl") as f:
+path = "/home/yyuan/bloom_7b1/"
+with open(path + "gen_bloom_7b1_story_vary.jsonl") as f:
     df = pd.read_json(f, lines=True)
 
 tokenizer = AutoTokenizer.from_pretrained("gpt2")
@@ -34,3 +34,4 @@ print(result, sum(result))
 # [4978, 20, 1, 0, 1] 5000 Bloom_560m News
 # [4924, 63, 9, 4, 0] 5000 Bloom_560m Story
 # [4928, 61, 8, 1, 2] 5000 Bloom_560m_TrueNews
+# [1608, 688, 410, 271, 2023] 5000 Bloom_7B1 Story
