@@ -5,3 +5,5 @@ stat_test/*.csv
 __pycache__
 .DS_Store
 launch.json
+.vscode/settings.json
+golden_reference/
