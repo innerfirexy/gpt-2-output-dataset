@@ -102,16 +102,17 @@ def fp_pipeline(data_file,
 
 
 def test():
-    data_dir = '/Users/james/Workspace/gpt-2-output-dataset/james/bloomz_560m/split_wiki/'
+    data_dir = '/home/yyuan/gpt-2-output-dataset/james/split_news/'
     # input_files = ['small-117M.test.model=gpt2.nll',
     #                'small-117M.test.model=gpt2-medium.nll',
     #                'small-117M.test.model=gpt2-large.nll',
     #                'small-117M.test.model=gpt2-xl.nll']
-    input_files = ['webtext.train.model=.bloom_560m.wiki.sorted.split.0.nll',
-                   'webtext.train.model=.bloom_560m.wiki.sorted.split.200.nll',
-                   'webtext.train.model=.bloom_560m.wiki.sorted.split.400.nll',
-                   'webtext.train.model=.bloom_560m.wiki.sorted.split.600.nll',
-                   'webtext.train.model=.bloom_560m.wiki.sorted.split.800.nll'
+    input_files = ['webtext.train.model=.bloom_7b1.news.sorted.split.0.nll',
+                   'webtext.train.model=.bloom_7b1.news.sorted.split.200.nll',
+                   'webtext.train.model=.bloom_7b1.news.sorted.split.400.nll',
+                   'webtext.train.model=.bloom_7b1.news.sorted.split.600.nll',
+                   'webtext.train.model=.bloom_7b1.news.sorted.split.800.nll'
+    
     ]
 
     # # Periodogram, normalized

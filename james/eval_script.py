@@ -13,6 +13,7 @@ import os
 # Set TOKENIZERS_PARALLELISM to 'true' or 'false' to avoid warning
 os.environ["TOKENIZERS_PARALLELISM"] = "true"
 
+
 ###############
 # Data Loader #
 ###############
@@ -33,9 +34,8 @@ def load_get2_pair(json_file_name, num_examples=float("inf")):
     print(f"Loading data from {json_file_name}......")
     for i, line in tqdm(enumerate(open(json_file_name))):
         try:
-            texts.append(
-                (json.loads(line)["prompt_text"], json.loads(line)["gen_text"])
-            )
+            texts.append((json.loads(line)["prompt"],
+                          json.loads(line)["text"]))
         except json.decoder.JSONDecodeError:  # skip to next line when encountering wrong string format
             continue
 
@@ -151,15 +151,15 @@ def compute_self_bleu(gen_text):
 
 if __name__ == "__main__":
     # hyper-parameters
-    tgt_len = 1000  # max text length (1024 / 256 / 128); 128 is used in Contrastive Decoding code
+    tgt_len = 1024  # max text length (1024 / 256 / 128); 128 is used in Contrastive Decoding code
     split = "train"  # reference data source (train / valid / test)
 
     # load original human & model texts
     p_text_ = load_gpt2_dataset(
-        "/home/james/Workspace/gpt-2-output-dataset/james/split_human/webtext.test.split.800.jsonl"
+        "/home/yyuan/gpt-2-output-dataset/james/news/news_4.jsonl"
     )  # human text
     q_text_ = load_gpt2_dataset(
-        "/home/james/Workspace/gpt-2-output-dataset/james/split_gen/webtext.train.split.800.jsonl"
+        "/home/yyuan/gpt-2-output-dataset/james/split_news/webtext.train.model=.bloom_7b1.news.sorted.split.800.jsonl"
     )  # model text
 
     # tokenization & batch_decode
@@ -167,11 +167,8 @@ if __name__ == "__main__":
     x = tokenizer(p_text_, truncation=True, max_length=tgt_len)["input_ids"]
     y = tokenizer(q_text_, truncation=True, max_length=tgt_len)["input_ids"]
     print("Performing batch_decode......")
-    xxyy = [
-        (xx, yy)
-        for (xx, yy) in tqdm(zip(x, y), total=min(len(x), len(y)))
-        if len(xx) <= tgt_len and len(yy) <= tgt_len
-    ]
+    xxyy = [(xx, yy) for (xx, yy) in tqdm(zip(x, y), total=min(len(x), len(y)))
+            if len(xx) <= tgt_len and len(yy) <= tgt_len]
     x, y = zip(*xxyy)
 
     # map back to texts
@@ -189,7 +186,8 @@ if __name__ == "__main__":
     print("diversity score:", div_score)
 
     coh_score = compute_coh(
-        file_name="/home/james/Workspace/gpt-2-output-dataset/james/split_gen pair/webtext.train.split.800.jsonl"
+        file_name=
+        '/home/yyuan/gpt-2-output-dataset/james/split_news/webtext.train.model=.bloom_7b1.news.sorted.split.800.jsonl'
     )
     print("coherence score:", coh_score)
 
@@ -198,4 +196,3 @@ if __name__ == "__main__":
 
     self_bleu_score = compute_self_bleu(q_text)
     print("self-bleu score:", self_bleu_score)
-

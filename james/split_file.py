@@ -3,10 +3,10 @@ from transformers import AutoTokenizer
 import jsonlines
 from tqdm import tqdm
 
-path = "/Users/james/Workspace/gpt-2-output-dataset/james/bloomz_560m/"
-gen_path = "/Users/james/Workspace/gpt-2-output-dataset/james/bloomz_560m/"
+path = "/home/yyuan/gpt-2-output-dataset/data/"
+gen_path = "/home/yyuan/gpt-2-output-dataset/data/"
 tokenizer = AutoTokenizer.from_pretrained("gpt2")
-filename = 'webtext.train.model=.bloom_560m.wiki.sorted.jsonl'
+filename = 'webtext.train.model=.bloom_7b1.news.sorted.jsonl'
 with open(path + filename) as f:
     df = pd.read_json(f, lines=True)
 
