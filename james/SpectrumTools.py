@@ -146,8 +146,8 @@ def getSAM(filepath1:str, filepath2:str):
 
 
 
-filepath1 = 'webtext_freq_power_1k_test.csv'
-filepath2 = 'webtext_freq_power_1k_opt.csv'
+filepath2 = '/home/yyuan/gpt-2-output-dataset/james/story/webtext.train.model=.story_0.fft.csv'
+filepath1 = '/home/yyuan/gpt-2-output-dataset/james/split_story/webtext.train.model=.bloom_7b1.story.sorted.split.0.fft.csv'
 area_floor_list, area_roof_list, pso_list = getPSO(filepath1, filepath2)
 corr_list = getPearson(filepath1, filepath2)
 sam_list = getSAM(filepath1, filepath2)
