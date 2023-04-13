@@ -46,3 +46,21 @@ testdata$power <- predict(gam_small, testdata)
 p <- ggplot(testdata, aes(freq, power)) +
   geom_line()
 ggsave("webtext.gpt2-small.fft.gam.predictions.pdf", plot=p)
+
+
+####
+# Golden standard data
+data_dirs <- c("../data/gs_james/gs_news/",
+               "../data/gs_james/gs_story/",
+               "../data/gs_james/gs_wiki/")
+genres <- c("news", "story", "wiki")
+lengths <- c("0","1","2","3","4")
+
+read_gs_files <- function(files) {
+  dt <- data.table()
+  for (i in 1:length(files)) {
+    d <- fread(files[i])
+    dt <- rbindlist(list(dt, d))
+  }
+  dt
+}
