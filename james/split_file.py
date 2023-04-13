@@ -6,7 +6,7 @@ from tqdm import tqdm
 path = "/home/yyuan/gpt-2-output-dataset/data/"
 gen_path = "/home/yyuan/gpt-2-output-dataset/data/"
 tokenizer = AutoTokenizer.from_pretrained("gpt2")
-filename = 'webtext.train.model=.bloom_7b1.news.sorted.jsonl'
+filename = 'webtext.train.model=.bloom_7b1.wiki.sorted.jsonl'
 with open(path + filename) as f:
     df = pd.read_json(f, lines=True)
 

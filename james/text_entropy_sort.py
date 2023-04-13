@@ -6,12 +6,12 @@ path = '/home/yyuan/gpt-2-output-dataset/data/'
 tokenizer = AutoTokenizer.from_pretrained("gpt2")
 
 entropy_list = []
-with open(path + 'webtext.train.model=.bloom_7b1.news.nll') as fe:
+with open(path + 'webtext.train.model=.bloom_7b1.wiki.nll') as fe:
     for line in fe:
         entropy_list.append(list(map(float, line.strip().split())))
 
 token_len_list = []
-with open(path + 'webtext.train.bloom_7b1.news.jsonl') as f:
+with open(path + 'webtext.train.bloom_7b1.wiki.jsonl') as f:
     df = pd.read_json(f, lines=True)
     for index, row in tqdm(df.iterrows()):
         token_len_list.append(
@@ -24,6 +24,6 @@ df['entropy'] = entropy_list
 print(df.head())
 
 df_sorted = df.sort_values(by='token_len', ascending=True)
-df_sorted.to_json(path + 'webtext.train.model=.bloom_7b1.news.sorted.jsonl',
+df_sorted.to_json(path + 'webtext.train.model=.bloom_7b1.wiki.sorted.jsonl',
                   orient='records',
                   lines=True)
