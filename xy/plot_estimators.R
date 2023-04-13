@@ -56,11 +56,40 @@ data_dirs <- c("../data/gs_james/gs_news/",
 genres <- c("news", "story", "wiki")
 lengths <- c("0","1","2","3","4")
 
-read_gs_files <- function(files) {
-  dt <- data.table()
-  for (i in 1:length(files)) {
-    d <- fread(files[i])
-    dt <- rbindlist(list(dt, d))
-  }
-  dt
-}
+# News
+d.gs_news0 <- fread("../data/gs_james/gs_news/webtext.train.model=.news_0.fft.csv")
+gam_gs_news0 <- gam(power ~ s(freq, bs="cs"), data=d.gs_news0)
+gam_gs_news0$coefficients
+# (Intercept)   s(freq).1   s(freq).2   s(freq).3   s(freq).4   s(freq).5   s(freq).6   s(freq).7   s(freq).8   s(freq).9
+# 10.02772   -84.57781   -31.45307   -56.91613   -44.49745   -52.38750   -49.73750   -50.95053    -57.17049   -25.40064
+summary(gam_gs_news0)
+d.gs_news0.gam <- data.table(coef = gam_gs_news0$coefficients[2:length(gam_gs_news0$coefficients)],
+                             order = 1:9)
+p <- ggplot(d.gs_news0.gam, aes(order, coef)) + geom_line()
+
+d.gs_news1 <- fread("../data/gs_james/gs_news/webtext.train.model=.news_1.fft.csv")
+gam_gs_news1 <- gam(power ~ s(freq, bs="cs"), data=d.gs_news1)
+d.gs_news1.gam <- data.table(coef = gam_gs_news1$coefficients[2:length(gam_gs_news1$coefficients)],
+                             order = 1:9)
+p <- ggplot(d.gs_news1.gam, aes(order, coef)) + geom_line()
+
+# Story
+d.gs_story0 <- fread("../data/gs_james/gs_story/webtext.train.model=.story_0.fft.csv")
+gam_gs_story0 <- gam(power ~ s(freq, bs="cs"), data=d.gs_story0)
+d.gs_story0.gam <- data.table(coef = gam_gs_story0$coefficients[2:length(gam_gs_story0$coefficients)],
+                             order = 1:9)
+p <- ggplot(d.gs_story0.gam, aes(order, coef)) + geom_line()
+
+# Wiki
+d.gs_wiki0 <- fread("../data/gs_james/gs_wiki/webtext.train.model=.wiki_0.fft.csv")
+gam_gs_wiki0 <- gam(power ~ s(freq, bs="cs"), data=d.gs_wiki0)
+d.gs_wiki0.gam <- data.table(coef = gam_gs_wiki0$coefficients[2:length(gam_gs_wiki0$coefficients)],
+                              order = 1:9)
+
+# Combined
+d.gs_news0.gam$genre <- "news"
+d.gs_story0.gam$genre <- "story"
+d.gs_wiki0.gam$genre <- "wiki"
+d.gam <- rbindlist(list(d.gs_news0.gam, d.gs_story0.gam, d.gs_wiki0.gam))
+p <- ggplot(d.gam, aes(order, coef)) +
+  geom_line(aes(color=genre, linetype=genre))
