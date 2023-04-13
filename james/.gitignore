@@ -1,9 +1,5 @@
-split/
+split*/
 GLM_deprecated/
-bloom_7b1/
-bloom_1b7
-bloomz_560m/
-split*
-news/
-story/
-wiki/
+gs*
+generated_text/
+*.txt
