@@ -1,3 +1,5 @@
 split*/
 GLM_deprecated/
 gs*
+generated_text/
+*.txt
