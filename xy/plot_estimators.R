@@ -93,3 +93,22 @@ d.gs_wiki0.gam$genre <- "wiki"
 d.gam <- rbindlist(list(d.gs_news0.gam, d.gs_story0.gam, d.gs_wiki0.gam))
 p <- ggplot(d.gam, aes(order, coef)) +
   geom_line(aes(color=genre, linetype=genre))
+
+
+# Try old gpt2 generated data for prelimanary comparison on GAM coef plot
+d.gpt2_sm <- fread("../data/data_gpt2_old/small-117M.test.model=gpt2.fft.csv")
+gam_gpt2_sm <- gam(power ~ s(freq, bs="cs"), data=d.gpt2_sm)
+d.gpt2_sm.gam <- data.table(coef = gam_gpt2_sm$coefficients[2:length(gam_gpt2_sm$coefficients)],
+                            order = 1:9)
+d.gpt2_sm.gam$genre <- "gpt2-small"
+
+p <- ggplot(d.gpt2_sm.gam, aes(order, coef)) + geom_line()
+ggsave("gpt2_small.gam.coef.pdf", plot=p)
+
+# Try more gpt2 generated data
+
+
+d.comp <- rbindlist((list(d.gs_news0.gam, d.gpt2_sm.gam)))
+p <- ggplot(d.comp, aes(order, coef)) +
+  geom_line(aes(color=genre, linetype=genre))
+ggsave("gpt2small_vs_gsnews0.gam.coef.comp.pdf", plot=p)
