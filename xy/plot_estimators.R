@@ -75,8 +75,19 @@ d.gam_gs_news0$model <- "gs"
 # Wiki
 
 # Try old gpt2 generated data for prelimanary comparison on GAM coef plot
-d.gam_gpt2small <- get_gam_coefs("../data/data_gpt2_old/webtext.test.model=gpt2.fft.csv")
-d.gam_gpt2small$model <- "gpt2-small"
+d.gam_gpt2sm <- get_gam_coefs("../data/data_gpt2_old/small-117M.test.model=gpt2.fft.csv")
+d.gam_gpt2sm$genre <- "news"
+d.gam_gpt2sm$model <- "gpt2-small"
+d.gam_gpt2md <- get_gam_coefs("../data/data_gpt2_old/medium-345M.test.model=gpt2-medium.fft.csv")
+d.gam_gpt2md$genre <- "news"
+d.gam_gpt2md$model <- "gpt2-medium"
+d.gam_gpt2lg <- get_gam_coefs("../data/data_gpt2_old/large-762M.test.model=gpt2-large.fft.csv")
+d.gam_gpt2lg$genre <- "news"
+d.gam_gpt2lg$model <- "gpt2-large"
+d.gam_gpt2xl <- get_gam_coefs("../data/data_gpt2_old/xl-1542M.test.model=gpt2-xl.fft.csv")
+d.gam_gpt2xl$genre <- "news"
+d.gam_gpt2xl$model <- "gpt2-xl"
+
 
 # Bloomz-560m data
 d.gam_bloomz560m_news <- get_gam_coefs("../data/data_bloomz_560m/webtext.train.model=.bloom_560m.news.fft.csv")
@@ -85,7 +96,11 @@ d.gam_bloomz560m_news$model <- "bloomz-560m"
 
 
 # Combined
-d.gam_comp <- rbindlist((list(d.gam_gs_news0, d.gam_bloomz560m_news)))
+d.gam_comp <- rbindlist(list(d.gam_gs_news0, d.gam_bloomz560m_news,
+                              d.gam_gpt2sm, d.gam_gpt2md, d.gam_gpt2lg, d.gam_gpt2xl))
 p <- ggplot(d.gam_comp, aes(order, coef)) +
-  geom_line(aes(color=model, linetype=model))
-ggsave("gpt2small_vs_gsnews0.gam.coef.comp.pdf", plot=p)
+  geom_line(aes(color=model, linetype=model)) +
+  geom_point(aes(color=model, shape=model)) +
+  scale_x_discrete(limits = as.factor(1:9)) +
+  theme_bw()
+ggsave("bloomz-560m_gs-news_gpt2old.gam.coef.pdf", plot=p)
