@@ -132,6 +132,18 @@ def test():
         output_file = data_dir + input_file[:-4] + '.fft.csv'
         df.to_csv(output_file, index=False)
 
+def run_bloomz_560m():
+    data_dir = '../data/data_bloomz_560m/'
+    input_files = ['webtext.train.model=.bloom_560m.news.nll',
+                   'webtext.train.model=.bloom_560m.story.nll',
+                   'webtext.train.model=.bloom_560m.wiki.nll']
+    # FFT, not normalized
+    for input_file in input_files:
+        df = fp_pipeline(data_dir + input_file, 'fft', normalize=False)
+        output_file = data_dir + input_file[:-4] + '.fft.csv'
+        df.to_csv(output_file, index=False)
+
 
 if __name__ == '__main__':
-    test()
+    # test()
+    run_bloomz_560m()
