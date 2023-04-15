@@ -5,6 +5,9 @@ import argparse
 from tqdm import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer, set_seed
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
+import os
+
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 # Add command line arguments
 parser = argparse.ArgumentParser()

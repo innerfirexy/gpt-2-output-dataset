@@ -6,8 +6,9 @@ from scipy import interpolate
 from scipy.stats import pearsonr
 from scipy.stats import spearmanr
 
- # # 从csv文件中读出每个区间，区分方法为每个区间必须升序
-def getInterval(fre_power_filepath:str):
+
+# # 从csv文件中读出每个区间，区分方法为每个区间必须升序
+def getInterval(fre_power_filepath: str):
     spectrum = pd.read_csv(fre_power_filepath)
     spectrum['group'] = (spectrum['freq'].shift(1) > spectrum['freq']).cumsum()
     grouped_spectrum = spectrum.groupby('group')
@@ -20,20 +21,27 @@ def getInterval(fre_power_filepath:str):
 
     return freq_list, power_list
 
- # # 返回由散点模拟的函数（可以为线性，二次方程或者三次方程）
-def getF(freq_list:list, power_list:list):
+
+# # 返回由散点模拟的函数（可以为线性，二次方程或者三次方程）
+def getF(freq_list: list, power_list: list):
     f = interpolate.interp1d(freq_list, power_list, fill_value="extrapolate")
     return f
 
- # # 根据两个文件内容， 返回每个区间固定且相同间隔的x对应的y值，区间取值为[0, 0.5]
-def alignPoints(filepath1:str, filepath2:str):
+
+# # 根据两个文件内容， 返回每个区间固定且相同间隔的x对应的y值，区间取值为[0, 0.5]
+def alignPoints(filepath1: str, filepath2: str):
 
     freq_list_list_1, power_list_list_1 = getInterval(filepath1)
     freq_list_list_2, power_list_list_2 = getInterval(filepath2)
     print(
-        f'There are {len(freq_list_list_1)},{len(freq_list_list_2)} intervals in file {filepath1},{filepath2} respectively')
+        f'There are {len(freq_list_list_1)},{len(freq_list_list_2)} intervals in file {filepath1},{filepath2} respectively'
+    )
     y1listlist, y2listlist = [], []
-    for i in range(len(freq_list_list_1)):
+
+    short_length = len(freq_list_list_1) if len(freq_list_list_1) < len(
+        freq_list_list_2) else len(freq_list_list_2)
+
+    for i in range(short_length):
         freq_list1 = freq_list_list_1[i]
         power_list1 = power_list_list_1[i]
         freq_list2 = freq_list_list_2[i]
@@ -46,7 +54,7 @@ def alignPoints(filepath1:str, filepath2:str):
         # len2 = len(freq_list2)
 
         # if len2 < len1:
-        #     len1 = len2 
+        #     len1 = len2
 
         # interpolate
         x = np.linspace(0, 0.5, 1000)
@@ -58,9 +66,34 @@ def alignPoints(filepath1:str, filepath2:str):
     return x, y1listlist, y2listlist
 
 
+# # 为每个fre区间计算auc
 
- # # 为每个fre区间计算auc
-def getPSO(filepath1:str, filepath2:str):
+# def getPSO(filepath1:str, filepath2:str):
+#     area_floor_list, area_roof_list, pso_list = [], [], []
+
+#     xlist, y1listlist, y2listlist = alignPoints(filepath1, filepath2)
+
+#     for i in range(len(y1listlist)):
+#         y1list = y1listlist[i]
+#         y2list = y2listlist[i]
+#         ylists = []
+#         ylists.append(y1list)
+#         ylists.append(y2list)
+
+#         y_intersection = np.amin(ylists, axis=0)
+#         y_roof = np.amax(ylists, axis=0)
+#         area_floor = np.trapz(y_intersection, xlist)
+#         area_roof = np.trapz(y_roof, xlist)
+
+#         area_floor_list.append(area_floor)
+#         area_roof_list.append(area_roof)
+#         pso_list.append(round(area_floor / area_roof, 4))
+
+#     return area_floor_list, area_roof_list, pso_list
+
+
+# # 为每个fre区间计算auc
+def getPSO(filepath1: str, filepath2: str):
     area_floor_list, area_roof_list, pso_list = [], [], []
 
     xlist, y1listlist, y2listlist = alignPoints(filepath1, filepath2)
@@ -68,6 +101,16 @@ def getPSO(filepath1:str, filepath2:str):
     for i in range(len(y1listlist)):
         y1list = y1listlist[i]
         y2list = y2listlist[i]
+
+        # Check whether there is power value lower than 0. If so, move the whole spectrum upwards.
+        min1 = min(y1list)
+        min2 = min(y2list)
+        lowest_power = min(min1, min2)
+        if lowest_power < 0:
+            # print('Move the curve upwords for ' + str(lowest_power))
+            y1list = [i - lowest_power for i in y1list]
+            y2list = [i - lowest_power for i in y2list]
+
         ylists = []
         ylists.append(y1list)
         ylists.append(y2list)
@@ -93,7 +136,7 @@ def getPSO(filepath1:str, filepath2:str):
     return area_floor_list, area_roof_list, pso_list
 
 
-def getSpearmanr(filepath1:str, filepath2:str):
+def getSpearmanr(filepath1: str, filepath2: str):
     xlist, y1listlist, y2listlist = alignPoints(filepath1, filepath2)
     corr_list = []
 
@@ -105,8 +148,9 @@ def getSpearmanr(filepath1:str, filepath2:str):
         corr_list.append(corr)
     return corr_list
 
- # # 为每个fre区间计算PearsonCorelation
-def getPearson(filepath1:str, filepath2:str):
+
+# # 为每个fre区间计算PearsonCorelation
+def getPearson(filepath1: str, filepath2: str):
     xlist, y1listlist, y2listlist = alignPoints(filepath1, filepath2)
     corr_list = []
 
@@ -118,8 +162,9 @@ def getPearson(filepath1:str, filepath2:str):
         corr_list.append(corr)
     return corr_list
 
- # # Calculate the similarity between two spectra using Spectral Angle Mapper
-def getSAM(filepath1:str, filepath2:str):
+
+# # Calculate the similarity between two spectra using Spectral Angle Mapper
+def getSAM(filepath1: str, filepath2: str):
     xlist, y1listlist, y2listlist = alignPoints(filepath1, filepath2)
     sam_list = []
 
@@ -145,24 +190,51 @@ def getSAM(filepath1:str, filepath2:str):
     return sam_list
 
 
+for i in range(6):
 
-filepath2 = '/home/yyuan/gpt-2-output-dataset/james/story/webtext.train.model=.story_0.fft.csv'
-filepath1 = '/home/yyuan/gpt-2-output-dataset/james/split_story/webtext.train.model=.bloom_7b1.story.sorted.split.0.fft.csv'
-area_floor_list, area_roof_list, pso_list = getPSO(filepath1, filepath2)
-corr_list = getPearson(filepath1, filepath2)
-sam_list = getSAM(filepath1, filepath2)
-# for i in range(len(area_floor_list)):
-#     res_list.append(i+ '\t' + area_floor_list[i]+ '\t' + area_roof_list[i]+ '\t' + pso_list[i]+ '\t' + corr_list[i]+ '\t' + sam_list[i])
-#     print(i, area_floor_list[i], area_roof_list[i], pso_list[i], corr_list[i], sam_list[i])
+    human_list = [
+        '/home/yyuan/gpt-2-output-dataset/james/gs_news/webtext.train.model=.news_0.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/gs_news/webtext.train.model=.news_1.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/gs_story/webtext.train.model=.story_0.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/gs_story/webtext.train.model=.story_1.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/gs_wiki/webtext.train.model=.wiki_0.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/gs_wiki/webtext.train.model=.wiki_1.fft.csv',
+    ]
+    gen_text_list = [
+        '/home/yyuan/gpt-2-output-dataset/james/split_news/webtext.train.model=.bloom_560m.news.sorted.split.0.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/split_news/webtext.train.model=.bloom_560m.news.sorted.split.200.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/split_story/webtext.train.model=.bloom_560m.story.sorted.split.0.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/split_story/webtext.train.model=.bloom_560m.story.sorted.split.200.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/split_wiki/webtext.train.model=.bloom_560m.wiki.sorted.split.0.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/split_wiki/webtext.train.model=.bloom_560m.wiki.sorted.split.200.fft.csv',
+    ]
+    print(human_list[i])
+    print(gen_text_list[i])
+    print(' -------- Divide Line --------')
 
-with open('TraditionalSimilarityResult.txt','w') as f:
-    for i, area_floor in enumerate(area_floor_list):
-        f.write(str(i) + '\t' + str(area_floor) + '\t' + str(area_roof_list[i])+ '\t' + str(pso_list[i])+ '\t' + str(corr_list[i])+ '\t' + str(sam_list[i]) + '\n')
+    filepath1 = human_list[i]
+    filepath2 = gen_text_list[i]
+    area_floor_list, area_roof_list, pso_list = getPSO(filepath1, filepath2)
+    corr_list = getPearson(filepath1, filepath2)
+    sam_list = getSAM(filepath1, filepath2)
+    spearmanr_list = getSpearmanr(filepath1, filepath2)
+    # for i in range(len(area_floor_list)):
+    #     res_list.append(i+ '\t' + area_floor_list[i]+ '\t' + area_roof_list[i]+ '\t' + pso_list[i]+ '\t' + corr_list[i]+ '\t' + sam_list[i])
+    #     print(i, area_floor_list[i], area_roof_list[i], pso_list[i], corr_list[i], sam_list[i])
 
-corr_pso_corr, _ = pearsonr(pso_list, corr_list)
-corr_pso_sam, _ = pearsonr(pso_list, sam_list)
-corr_corr_sam, _ = pearsonr(corr_list, sam_list)
+    with open('FFT.txt', 'w') as f:
+        for i, area_floor in enumerate(area_floor_list):
+            f.write(
+                str(i) + '\t' + str(area_floor) + '\t' +
+                str(area_roof_list[i]) + '\t' + str(pso_list[i]) + '\t' +
+                str(corr_list[i]) + '\t' + str(sam_list[i]) + '\t' +
+                str(spearmanr_list[i]) + '\n')
 
-print(f'The correlation are {0}, {1}, {2} between pso and pearson, pso and sam, pearson and sam'
-      , corr_pso_corr, corr_pso_sam, corr_corr_sam)
-print()
+    corr_pso_corr, _ = pearsonr(pso_list, corr_list)
+    corr_pso_sam, _ = pearsonr(pso_list, sam_list)
+    corr_pso_spear, _ = pearsonr(pso_list, spearmanr_list)
+
+    print(sum(pso_list) / len(pso_list))
+    print(
+        f'The correlation are {0}, {1}, {2} between pso and pearson, pso and sam, pso and spearmanr\n',
+        corr_pso_corr, corr_pso_sam, corr_pso_spear)

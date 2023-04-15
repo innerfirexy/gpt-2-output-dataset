@@ -14,7 +14,7 @@ tokenizer = AutoTokenizer.from_pretrained(f"facebook/{model_name}", use_fast=Fal
 prompt_list = []
 opt_list = []
 print("Reading prompt_text......")
-with open("story_vary.txt", "r") as file:
+with open("wikitext_35.txt", "r") as file:
     content_lines = file.readlines()
 prompt_list = [content_lines[i].rstrip('\n') for i in range(1, 15000, 3)]
 for idx, prompt in tqdm(enumerate(prompt_list)):
@@ -35,7 +35,7 @@ for idx, prompt in tqdm(enumerate(prompt_list), total=len(prompt_list)):
 
 # output generated text
 print("Wrting opt_text......")
-with open("webtext.train_opt_6.7b_top_50_story.jsonl", "w") as file:
+with open("webtext.train_opt_6.7b_top_50_wiki.jsonl", "w") as file:
     for line in tqdm(opt_list, total=len(opt_list)):
         json.dump(line, file)
         file.write("\n")
