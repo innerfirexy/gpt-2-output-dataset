@@ -34,7 +34,7 @@ def load_gpt2_dataset(json_file_name, num_examples=float("inf")):
     return texts # [gen_text1, gen_text2, ...]
 
 
-def load_get2_pair(json_file_name, num_examples=float("inf")):
+def load_gpt2_pair(json_file_name, num_examples=float("inf")):
     texts = []
     print(f"Loading data from {json_file_name}......")
     for i, line in tqdm(enumerate(open(json_file_name))):
@@ -110,7 +110,7 @@ def compute_coh(file_name):
     """
     
     model = SimCSE("princeton-nlp/sup-simcse-bert-base-uncased")
-    sent_lst = load_get2_pair(file_name) # "opttext_pair.jsonl"
+    sent_lst = load_gpt2_pair(file_name) # "opttext_pair.jsonl"
     pp_lst, yy_lst = zip(*sent_lst)
     similarities = np.array(model.similarity(list(pp_lst), list(yy_lst)))
     coh_score = similarities.trace() / len(similarities) 
