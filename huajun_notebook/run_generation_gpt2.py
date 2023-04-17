@@ -7,7 +7,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer, set_seed
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
 import os
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 # Add command line arguments
 parser = argparse.ArgumentParser()
