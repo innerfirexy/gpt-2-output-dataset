@@ -7,3 +7,4 @@ __pycache__
 launch.json
 .vscode/settings.json
 golden_reference/
+*.out

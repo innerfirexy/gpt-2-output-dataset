@@ -3,6 +3,7 @@ GLM_deprecated/
 gs*
 generated_text/
 *.txt
+plot/
 story/
 wiki/
 news/
