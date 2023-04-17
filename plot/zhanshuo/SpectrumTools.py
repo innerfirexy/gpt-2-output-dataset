@@ -102,7 +102,7 @@ def getPSO(filepath1:str, filepath2:str):
         min2 = min(y2list)
         lowest_power = min(min1, min2)
         if lowest_power<0:
-            print('Move the curve upwords for '+ str(lowest_power))
+            # print('Move the curve upwords for '+ str(lowest_power))
             y1list = [i - lowest_power for i in y1list]
             y2list = [i - lowest_power for i in y2list]
 
@@ -185,26 +185,60 @@ def getSAM(filepath1:str, filepath2:str):
     return sam_list
 
 
+# Following code is to calculate pso and other metrics between two single csv
+# filepath1 = 'webtext_freq_power_1k_opt_125m_top_50_story_fft.csv'
+# filepath2 = 'webtext_freq_power_1k_valid_fft.csv'
+# area_floor_list, area_roof_list, pso_list = getPSO(filepath1, filepath2)
+# corr_list = getPearson(filepath1, filepath2)
+# sam_list = getSAM(filepath1, filepath2)
+# spearmanr_list = getSpearmanr(filepath1, filepath2)
 
-filepath1 = 'webtext_freq_power_1k_opt_125m_top_50_story_fft.csv'
-filepath2 = 'webtext_freq_power_1k_valid_fft.csv'
-area_floor_list, area_roof_list, pso_list = getPSO(filepath1, filepath2)
-corr_list = getPearson(filepath1, filepath2)
-sam_list = getSAM(filepath1, filepath2)
-spearmanr_list = getSpearmanr(filepath1, filepath2)
-# for i in range(len(area_floor_list)):
-#     res_list.append(i+ '\t' + area_floor_list[i]+ '\t' + area_roof_list[i]+ '\t' + pso_list[i]+ '\t' + corr_list[i]+ '\t' + sam_list[i])
-#     print(i, area_floor_list[i], area_roof_list[i], pso_list[i], corr_list[i], sam_list[i])
 
-with open('FFT.txt','w') as f:
-    for i, area_floor in enumerate(area_floor_list):
-        f.write(str(i) + '\t' + str(area_floor) + '\t' + str(area_roof_list[i])+ '\t'
-                + str(pso_list[i])+ '\t' + str(corr_list[i])+ '\t' + str(sam_list[i]) + '\t'
-                + str(spearmanr_list[i]) + '\n')
+# Following code is to calculate pso and other metrics between many csvs
+data_sources = ('news', 'story', 'wiki')
+model_types = ('6.7b', '125m')
+text_length_tuple = (0, 1, 2, 3, 4)
+ans_str = ''
 
-corr_pso_corr, _ = pearsonr(pso_list, corr_list)
-corr_pso_sam, _ = pearsonr(pso_list, sam_list)
-corr_pso_spear, _ = pearsonr(pso_list, spearmanr_list)
+for model_type in model_types:
+    for data_source in data_sources:
+        total_pso_list = []
+        total_corr_list = []
+        total_sam_list = []
+        total_spearmanr_list = []
+        for text_length in text_length_tuple:
+            original_filename = 'webtext.train.model=.' + data_source + '_' + str(text_length) + '.fft.csv'
+            generated_filename = 'webtext.train_opt_' + model_type + '_top_50_' + data_source + '.sorted.split.' + str(text_length*200) + '.fft.csv'
+            area_floor_list, area_roof_list, pso_list = getPSO(original_filename, generated_filename)
+            corr_list = getPearson(original_filename, generated_filename)
+            sam_list = getSAM(original_filename, generated_filename)
+            spearmanr_list = getSpearmanr(original_filename, generated_filename)
 
-print(f'The correlation are {0}, {1}, {2} between pso and pearson, pso and sam, pso and spearmanr'
-      , corr_pso_corr, corr_pso_sam, corr_pso_spear)
+            total_pso_list.extend(pso_list)
+            total_corr_list.extend(corr_list)
+            total_sam_list.extend(sam_list)
+            total_spearmanr_list.extend(spearmanr_list)
+
+        avg_pso = sum(total_pso_list)/len(total_pso_list)
+        avg_corr = sum(total_corr_list)/len(total_corr_list)
+        avg_sam = sum(total_sam_list)/len(total_sam_list)
+        avg_spearmanr = sum(total_spearmanr_list)/len(total_spearmanr_list)
+        tmp_str = model_type + '_' + data_source + '\t' + str(avg_pso) + '\t' + str(avg_corr) + '\t' + str(avg_sam) + '\t' + str(avg_spearmanr) + '\n'
+        ans_str = ans_str + tmp_str
+        print(tmp_str)
+
+
+
+with open('Ans.txt','w') as f:
+    f.write(ans_str)
+
+
+
+# calculate the corelation between pso and other metrics.
+
+# corr_pso_corr, _ = pearsonr(pso_list, corr_list)
+# corr_pso_sam, _ = pearsonr(pso_list, sam_list)
+# corr_pso_spear, _ = pearsonr(pso_list, spearmanr_list)
+#
+# print(f'The correlation are {0}, {1}, {2} between pso and pearson, pso and sam, pso and spearmanr'
+#       , corr_pso_corr, corr_pso_sam, corr_pso_spear)
