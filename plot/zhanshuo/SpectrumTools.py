@@ -214,20 +214,30 @@ for model_type in model_types:
             sam_list = getSAM(original_filename, generated_filename)
             spearmanr_list = getSpearmanr(original_filename, generated_filename)
 
+            avg_pso = sum(pso_list) / len(pso_list)
+            avg_corr = sum(corr_list) / len(corr_list)
+            avg_sam = sum(sam_list) / len(sam_list)
+            avg_spearmanr = sum(spearmanr_list) / len(spearmanr_list)
+            tmp_str = model_type + '_' + data_source + '_' + str(text_length) + '\t' + str(avg_pso) + '\t' + str(avg_corr) + '\t' + str(
+                avg_sam) + '\t' + str(avg_spearmanr) + '\n'
+            ans_str = ans_str + tmp_str
+            print(tmp_str)
+
             total_pso_list.extend(pso_list)
             total_corr_list.extend(corr_list)
             total_sam_list.extend(sam_list)
             total_spearmanr_list.extend(spearmanr_list)
 
-        avg_pso = sum(total_pso_list)/len(total_pso_list)
-        avg_corr = sum(total_corr_list)/len(total_corr_list)
-        avg_sam = sum(total_sam_list)/len(total_sam_list)
-        avg_spearmanr = sum(total_spearmanr_list)/len(total_spearmanr_list)
-        tmp_str = model_type + '_' + data_source + '\t' + str(avg_pso) + '\t' + str(avg_corr) + '\t' + str(avg_sam) + '\t' + str(avg_spearmanr) + '\n'
+        total_avg_pso = sum(total_pso_list)/len(total_pso_list)
+        total_avg_corr = sum(total_corr_list)/len(total_corr_list)
+        total_avg_sam = sum(total_sam_list)/len(total_sam_list)
+        total_avg_spearmanr = sum(total_spearmanr_list)/len(total_spearmanr_list)
+
+        tmp_str = model_type + '_' + data_source + '\t' + str(avg_pso) + '\t' + str(
+            avg_corr) + '\t' + str(
+            avg_sam) + '\t' + str(avg_spearmanr) + '\n'
         ans_str = ans_str + tmp_str
         print(tmp_str)
-
-
 
 with open('Ans.txt','w') as f:
     f.write(ans_str)
