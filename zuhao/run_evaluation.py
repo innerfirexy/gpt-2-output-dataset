@@ -231,49 +231,172 @@ def compute_zipf(gen_text, max_len):
 
 
 if __name__ == "__main__":
-    # hyper-parameters
-    tgt_len = 1024   # should use 1024 in our experimental setting; 128 is used in Contrastive Decoding code
-    split = "valid" # reference data source (human text)
-    batch_size = 20 # used in perplexity computation
-  
-    # load original human & model texts
-    p_text_ = load_gpt2_dataset(f"data/webtext.{split}.jsonl") # human text
-    q_text_ = load_gpt2_dataset("data/webtext.train_opt_6.7b_top_50_story.jsonl") # model text
+    human_list = [
+        '/root/autodl-tmp/gpt-2-output-dataset/gs_story/story_0.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/gs_story/story_1.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/gs_story/story_2.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/gs_story/story_3.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/gs_story/story_4.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/gs_news/news_0.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/gs_news/news_1.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/gs_news/news_2.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/gs_news/news_3.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/gs_news/news_4.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/gs_wiki/wiki_0.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/gs_wiki/wiki_1.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/gs_wiki/wiki_2.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/gs_wiki/wiki_3.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/gs_wiki/wiki_4.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/gs_story/story_0.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/gs_story/story_1.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/gs_story/story_2.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/gs_story/story_3.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/gs_story/story_4.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/gs_news/news_0.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/gs_news/news_1.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/gs_news/news_2.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/gs_news/news_3.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/gs_news/news_4.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/gs_wiki/wiki_0.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/gs_wiki/wiki_1.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/gs_wiki/wiki_2.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/gs_wiki/wiki_3.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/gs_wiki/wiki_4.jsonl'
+    ]
 
-    # tokenization & batch_decode
-    tokenizer = AutoTokenizer.from_pretrained("gpt2")
-    x = tokenizer(p_text_, truncation=True, max_length=tgt_len)["input_ids"]
-    y = tokenizer(q_text_, truncation=True, max_length=tgt_len)["input_ids"]
-    print("Performing batch_decode......")
-    xxyy = [(xx, yy) for (xx, yy) in tqdm(zip(x, y), total=min(len(x), len(y))) if len(xx) <= tgt_len and len(yy) <= tgt_len]
-    x, y = zip(*xxyy)
-
-    # map back to texts
-    p_text = tokenizer.batch_decode(x) # [:target_num]
-    q_text = tokenizer.batch_decode(y) # [:target_num]
-
-    # compute scores
-    mauve_score = compute_mauve(p_text, q_text, tgt_len)
-    print("mauve score:", mauve_score)
-
-    rep_2, rep_3, rep_4, div_score = compute_rep_div(q_text_)
-    print("rep-2 score:", rep_2)
-    print("rep-3 score:", rep_3)
-    print("rep-4 score:", rep_4)
-    print("diversity score:", div_score)
-
-    coh_score = compute_coh(file_name="opttext_pair.jsonl")
-    print("coherence score:", coh_score)
-
-    bleu_score = compute_bleu(p_text_, q_text_)
-    print("bleu score:", bleu_score)
-
-    self_bleu_score = compute_self_bleu(q_text_)
-    print("self-bleu score:", self_bleu_score)
-            
-    perplexity_score = compute_perplexity(q_text_, tgt_len, batch_size)
-    print("perplexity score:", perplexity_score)
+    gen_text_list = [
+        '/root/autodl-tmp/gpt-2-output-dataset/data/webtext.train_opt_125m_top_50_story.sorted.split.0.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/data/webtext.train_opt_125m_top_50_story.sorted.split.200.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/data/webtext.train_opt_125m_top_50_story.sorted.split.400.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/data/webtext.train_opt_125m_top_50_story.sorted.split.600.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/data/webtext.train_opt_125m_top_50_story.sorted.split.800.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/data/webtext.train_opt_125m_top_50_news.sorted.split.0.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/data/webtext.train_opt_125m_top_50_news.sorted.split.200.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/data/webtext.train_opt_125m_top_50_news.sorted.split.400.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/data/webtext.train_opt_125m_top_50_news.sorted.split.600.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/data/webtext.train_opt_125m_top_50_news.sorted.split.800.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/data/webtext.train_opt_125m_top_50_wiki.sorted.split.0.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/data/webtext.train_opt_125m_top_50_wiki.sorted.split.200.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/data/webtext.train_opt_125m_top_50_wiki.sorted.split.400.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/data/webtext.train_opt_125m_top_50_wiki.sorted.split.600.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/data/webtext.train_opt_125m_top_50_wiki.sorted.split.800.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/data/webtext.train_opt_6.7b_top_50_story.sorted.split.0.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/data/webtext.train_opt_6.7b_top_50_story.sorted.split.200.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/data/webtext.train_opt_6.7b_top_50_story.sorted.split.400.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/data/webtext.train_opt_6.7b_top_50_story.sorted.split.600.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/data/webtext.train_opt_6.7b_top_50_story.sorted.split.800.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/data/webtext.train_opt_6.7b_top_50_news.sorted.split.0.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/data/webtext.train_opt_6.7b_top_50_news.sorted.split.200.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/data/webtext.train_opt_6.7b_top_50_news.sorted.split.400.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/data/webtext.train_opt_6.7b_top_50_news.sorted.split.600.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/data/webtext.train_opt_6.7b_top_50_news.sorted.split.800.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/data/webtext.train_opt_6.7b_top_50_wiki.sorted.split.0.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/data/webtext.train_opt_6.7b_top_50_wiki.sorted.split.200.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/data/webtext.train_opt_6.7b_top_50_wiki.sorted.split.400.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/data/webtext.train_opt_6.7b_top_50_wiki.sorted.split.600.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/data/webtext.train_opt_6.7b_top_50_wiki.sorted.split.800.jsonl'
+    ]
     
-    zipf_score = compute_zipf(q_text_, tgt_len)
-    print("zipf score:", zipf_score)
-        
+    pair_text_list = [
+        '/root/autodl-tmp/gpt-2-output-dataset/pair/webtext.train_opt_125m_top_50_story.sorted.split.0.pair.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/pair/webtext.train_opt_125m_top_50_story.sorted.split.200.pair.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/pair/webtext.train_opt_125m_top_50_story.sorted.split.400.pair.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/pair/webtext.train_opt_125m_top_50_story.sorted.split.600.pair.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/pair/webtext.train_opt_125m_top_50_story.sorted.split.800.pair.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/pair/webtext.train_opt_125m_top_50_news.sorted.split.0.pair.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/pair/webtext.train_opt_125m_top_50_news.sorted.split.200.pair.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/pair/webtext.train_opt_125m_top_50_news.sorted.split.400.pair.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/pair/webtext.train_opt_125m_top_50_news.sorted.split.600.pair.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/pair/webtext.train_opt_125m_top_50_news.sorted.split.800.pair.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/pair/webtext.train_opt_125m_top_50_wiki.sorted.split.0.pair.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/pair/webtext.train_opt_125m_top_50_wiki.sorted.split.200.pair.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/pair/webtext.train_opt_125m_top_50_wiki.sorted.split.400.pair.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/pair/webtext.train_opt_125m_top_50_wiki.sorted.split.600.pair.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/pair/webtext.train_opt_125m_top_50_wiki.sorted.split.800.pair.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/pair/webtext.train_opt_6.7b_top_50_story.sorted.split.0.pair.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/pair/webtext.train_opt_6.7b_top_50_story.sorted.split.200.pair.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/pair/webtext.train_opt_6.7b_top_50_story.sorted.split.400.pair.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/pair/webtext.train_opt_6.7b_top_50_story.sorted.split.600.pair.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/pair/webtext.train_opt_6.7b_top_50_story.sorted.split.800.pair.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/pair/webtext.train_opt_6.7b_top_50_news.sorted.split.0.pair.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/pair/webtext.train_opt_6.7b_top_50_news.sorted.split.200.pair.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/pair/webtext.train_opt_6.7b_top_50_news.sorted.split.400.pair.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/pair/webtext.train_opt_6.7b_top_50_news.sorted.split.600.pair.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/pair/webtext.train_opt_6.7b_top_50_news.sorted.split.800.pair.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/pair/webtext.train_opt_6.7b_top_50_wiki.sorted.split.0.pair.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/pair/webtext.train_opt_6.7b_top_50_wiki.sorted.split.200.pair.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/pair/webtext.train_opt_6.7b_top_50_wiki.sorted.split.400.pair.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/pair/webtext.train_opt_6.7b_top_50_wiki.sorted.split.600.pair.jsonl',
+        '/root/autodl-tmp/gpt-2-output-dataset/pair/webtext.train_opt_6.7b_top_50_wiki.sorted.split.800.pair.jsonl'
+    ]
+    
+    length_list = [200, 400, 600, 800, 1024] * 6
+    result = [{} for _ in range(30)]
+    
+    for i in tqdm(range(30), total=30):
+        # basic info
+        print(f"Human Reference: {human_list[i]}")
+        print(f"Model-generated Text: {gen_text_list[i]}")
+        print(f"Length Interval: {length_list[i]}")
+        print(' ------------------------ Divide Line ------------------------')
+
+        # hyper-parameters
+        tgt_len = length_list[i]   # should use 1024 in our experimental setting; 128 is used in Contrastive Decoding code
+        batch_size = 20            # used in perplexity computation
+
+        # load original human & model texts
+        p_text_ = load_gpt2_dataset(human_list[i])    # human text
+        q_text_ = load_gpt2_dataset(gen_text_list[i]) # model text
+
+        # tokenization & batch_decode
+        tokenizer = AutoTokenizer.from_pretrained("gpt2")
+        x = tokenizer(p_text_, truncation=True, max_length=tgt_len)["input_ids"]
+        y = tokenizer(q_text_, truncation=True, max_length=tgt_len)["input_ids"]
+        print("Performing batch_decode......")
+        xxyy = [(xx, yy) for (xx, yy) in tqdm(zip(x, y), total=min(len(x), len(y))) if len(xx) <= tgt_len and len(yy) <= tgt_len]
+        x, y = zip(*xxyy)
+
+        # map back to texts
+        p_text = tokenizer.batch_decode(x) # [:target_num]
+        q_text = tokenizer.batch_decode(y) # [:target_num]
+
+        # compute scores
+        mauve_score = compute_mauve(p_text, q_text, tgt_len)
+        print("mauve score:", mauve_score)
+        result[i]["mauve"] = mauve_score
+
+        rep_2, rep_3, rep_4, div_score = compute_rep_div(q_text_)
+        print("rep-2 score:", rep_2)
+        result[i]["rep-2"] = rep_2
+        print("rep-3 score:", rep_3)
+        result[i]["rep-3"] = rep_3
+        print("rep-4 score:", rep_4)
+        result[i]["rep-4"] = rep_4
+        print("diversity score:", div_score)
+        result[i]["diversity"] = div_score
+
+        coh_score = compute_coh(file_name=pair_text_list[i])
+        print("coherence score:", coh_score)
+        result[i]["coherence"] = coh_score
+
+        bleu_score = compute_bleu(p_text_, q_text_)
+        print("bleu score:", bleu_score)
+        result[i]["bleu"] = bleu_score
+
+        self_bleu_score = compute_self_bleu(q_text_)
+        print("self-bleu score:", self_bleu_score)
+        result[i]["self-bleu"] = self_bleu_score
+
+        perplexity_score = compute_perplexity(q_text_, tgt_len, batch_size)
+        print("perplexity score:", perplexity_score)
+        result[i]["perplexity"] = perplexity_score
+
+        zipf_score = compute_zipf(q_text_, tgt_len)
+        print("zipf score:", zipf_score)
+        result[i]["zipf"] = zipf_score
+
+        print(f"results for the {i+1}-th iteration: {result[i]}")
+
+    # output results
+    with open("result.txt", "w") as f:
+        f.write(json.dumps(result))
