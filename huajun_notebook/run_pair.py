@@ -17,27 +17,28 @@ with open("../zuhao/prompt_raw/wikitext_35.txt", "r", encoding='utf-8') as file:
 prompt_dict["wikitext_35"] = [content_wiki[i].rstrip('\n') for i in range(1, 15000, 3)]
 
 # Set the file path
-gen_path = '../data/gpt2-generated-from-prompt/split/'
+gen_path = '../data/gpt2-generated-from-prompt/split_new/'
 for model in ["gpt2", "gpt2-xl"]:
     for split in ['story_vary', 'truenews_35', 'wikitext_35']:
         for split_len in range(0, 1000, 200):
             # Separate prompt_text and gen_text
-            print(f"current loop: {model}-{split}.split_{split_len}")
+            filename = f"{model}-{split}.sorted.split.{split_len}.jsonl"
+            print(f"current loop: {filename}")
             out_list = []
-            with open(gen_path + f"{model}-{split}.split_{split_len}.jsonl", "r", encoding='utf-8') as file:
+            with open(gen_path + filename, "r", encoding='utf-8') as file:
                 print("Separating prompt_text and gen_text......")
                 for line in tqdm(file):
                     idx = json.loads(line)["id"]
                     ended = json.loads(line)["ended"]
                     length = json.loads(line)["length"]
-                    text = json.loads(line)["text"]
+                    text = json.loads(line)["gen_text"]
                     prompt_text = prompt_dict[split][idx]
                     text1 = text[:len(prompt_text)-1]
                     text2 = text[len(prompt_text):]  
                     out = {"id":idx , "ended": ended, "length": length, "prompt_text": text1, "gen_text": text2}
                     out_list.append(out)
                     
-            with open(gen_path + f"{model}-{split}.split_{split_len}.pair.jsonl", "w") as file:
+            with open(gen_path + f"{model}-{split}.sorted.split.{split_len}.pair.jsonl", "w") as file:
                 print("Outputing paired jsonl file......")
                 for out in tqdm(out_list):
                     json.dump(out, file)
