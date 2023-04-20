@@ -279,9 +279,9 @@ if __name__ == "__main__":
         split_domain = split_domain_list[index]
         cat_wo_gs = categories_wo_gs[index]
         for i in range(5):
-            file_lists['human'].append(file_template.format(cat=cat, cat_wo_gs=cat_wo_gs, idx=i))
-            
+            # file_lists['human'].append(file_template.format(cat=cat, cat_wo_gs=cat_wo_gs, idx=i))
             for model_name in ['gpt2', 'gpt2-xl']:
+                file_lists['human'].append(file_template.format(cat=cat, cat_wo_gs=cat_wo_gs, idx=i))
                 file_lists['gen'].append(split_template.format(base=base_path, model=model_name, split=split_domain, idx=i*200))
                 file_lists['pair'].append(pair_template.format(base=base_path, model=model_name, split=split_domain, idx=i*200))
 
