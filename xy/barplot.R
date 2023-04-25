@@ -117,6 +117,48 @@ sample_size.melt <- melt(sample_size, id.vars = c("domain", "model"), variable.n
 # Join dt.melt with sample_size.melt
 dt.melt <- merge(dt.melt, sample_size.melt, by = c("domain", "model", "lengthGroup"))
 
+# Compute weighted average scores
+dt.melt.avg <- dt.melt[, .(score = weighted.mean(score, sampleSize)), by = c("domain", "metric", "model")]
+
+# Sanity check to see if NAs affect
+dt.melt2 <- copy(dt.melt)
+dt.melt2[is.na(score), score := 0]
+dt.melt2.avg <- dt.melt2[, .(score = weighted.mean(score, sampleSize)), by = c("domain", "metric", "model")]
+identical(dt.melt.avg, dt.melt2.avg) # FALSE
+all.equal(dt.melt.avg, dt.melt2.avg) # "Column 'score': 'is.NA' value mismatch: 0 in current 42 in target"
+# NAs remain in dt.melt.avg after calling weighted.mean()
+
+# Further sanity check
+tmp <- dt.melt[metric=="PSO" & model=="bloom_sm" & domain == "news",]
+tmp
+# domain    model lengthGroup metric     score sampleSize
+# 1:   news bloom_sm       0-200    PSO 0.7021831       4978
+# 2:   news bloom_sm     201-400    PSO 0.7275200         20
+# 3:   news bloom_sm     401-600    PSO        NA          1
+# 4:   news bloom_sm     601-800    PSO        NA          0
+# 5:   news bloom_sm    801-1024    PSO        NA          1
+weighted.mean(tmp$score, tmp$sampleSize) # NA returned
+weighted.mean(tmp$score, tmp$sampleSize, na.rm = TRUE) # 0.7022845
+tmp_score <- tmp$score
+tmp_score[is.na(tmp_score)] <- 0
+weighted.mean(tmp_score, tmp$sampleSize) # 0.7020035 ==> Not correct!
+# So, should not replace NAs with 0, but should use na.rm = TRUE in weighted.mean()
+dt.melt.avg[metric=="PSO" & model=="bloom_sm" & domain=="news",]
+# domain metric    model score
+# 1:   news    PSO bloom_sm    NA
+dt.melt2.avg[metric=="PSO" & model=="bloom_sm" & domain=="news",]
+# domain metric    model     score
+# 1:   news    PSO bloom_sm 0.7020035 ==> Not correct!
+
+# Re-calculate dt.melt.avg using na.rm = TRUE in weighted.mean()
+dt.melt.avg <- dt.melt[, .(score = weighted.mean(score, sampleSize, na.rm = TRUE)), by = c("domain", "metric", "model")]
+dt.melt.avg[metric=="PSO" & model=="bloom_sm" & domain=="news",]
+# domain metric    model     score
+# 1:   news    PSO bloom_sm 0.7022845
+# Now got correct number
+
+
+
 
 # News
 PSO_bloom_sm <- c(0.7021830655, 0.72752)
