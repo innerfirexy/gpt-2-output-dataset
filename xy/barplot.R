@@ -77,6 +77,48 @@ ggsave("gpt2_barplot_k40.pdf", plot=p3)
 ####
 # Results from QUANTATIVE_RESULTS table
 ####
+
+# Read raw .tsv files
+dt_lenGrp1 <- fread("QR_0-200.tsv")
+dt_lenGrp2 <- fread("QR_201-400.tsv")
+dt_lenGrp3 <- fread("QR_401-600.tsv")
+dt_lenGrp4 <- fread("QR_601-800.tsv")
+dt_lenGrp5 <- fread("QR_801-1024.tsv")
+
+rename_raw_dt <- function (dt) {
+  setnames(dt, c("V1", "V2", "V3", "V4", "V5", "V6"),
+           c("bloom_sm", "bloom_bg", "opt_sm", "opt_bg", "gpt2_sm", "gpt2_bg"),
+           skip_absent = TRUE)
+  dt$domain <- rep(c("news", "story", "wiki"), each=14)
+  dt$metric <- rep(c("MAUVE", "REP2", "REP3", "REP4", "Diversity", "Coherence", "BLEU", "Self-BLEU",
+                 "Perplexity", "Zipf", "PSO", "CORR", "SAM", "SPEAR"), 3)
+  dt
+}
+res_list <- lapply(list(dt_lenGrp1, dt_lenGrp2, dt_lenGrp3, dt_lenGrp4, dt_lenGrp5), rename_raw_dt)
+names(res_list) <- lapply(1:5, function(x) paste0("dt_lenGrp", x))
+list2env(res_list, envir = .GlobalEnv)
+
+dt_lenGrp1$lengthGroup <- "0-200"
+dt_lenGrp2$lengthGroup <- "201-400"
+dt_lenGrp3$lengthGroup <- "401-600"
+dt_lenGrp4$lengthGroup <- "601-800"
+dt_lenGrp5$lengthGroup <- "801-1024"
+dt <- rbindlist(list(dt_lenGrp1, dt_lenGrp2, dt_lenGrp3, dt_lenGrp4, dt_lenGrp5))
+dt.melt <- melt(dt, id.vars = c("domain", "metric", "lengthGroup"), variable.name = "model", value.name = "score")
+
+# Read sampling size
+sample_size <- fread("QR_sample_size.csv")
+setnames(sample_size, c("V1", "V2", "V3", "V4", "V5", "V6"),
+         c("domain", "0-200", "201-400", "401-600", "601-800", "801-1024"),
+         skip_absent = TRUE)
+sample_size$model <- rep(c("bloom_sm", "bloom_bg", "opt_sm", "opt_bg", "gpt2_sm", "gpt2_bg"), 3)
+sample_size.melt <- melt(sample_size, id.vars = c("domain", "model"), variable.name = "lengthGroup", value.name = "sampleSize")
+
+# Join dt.melt with sample_size.melt
+dt.melt <- merge(dt.melt, sample_size.melt, by = c("domain", "model", "lengthGroup"))
+
+
+# News
 PSO_bloom_sm <- c(0.7021830655, 0.72752)
 PSO_bloom_bg <- c(0.7085967177, 0.728061614)
 CORR_bloom_sm <- c(0.6144489458, 0.6972528097)
@@ -94,6 +136,15 @@ SAM_opt_sm <- c(0.263160641, 0.242144144)
 SAM_opt_bg <- c(0.264506319, 0.24539481)
 SPEAR_opt_sm <- c(0.03843578, 0.015199294)
 SPEAR_opt_bg <- c(0.04524173, 0.017465422)
+
+PSO_gpt2_sm <- c(0.7093288, 0.737018249)
+PSO_gpt2_bg <- c(0.709373565, 0.733150674)
+CORR_gpt2_sm <- c(0.647413501, 0.725049197)
+CORR_gpt2_bg <- c(0.626997834, 0.69114533)
+SAM_gpt2_sm <- c(0.270093568, 0.239829325)
+SAM_gpt2_bg <- c(0.279523374, 0.255399434)
+SPEAR_gpt2_sm <- c(0.046212277, 0.025752112)
+SPEAR_gpt2_bg <- c(0.045604807, 0.021786918)
 
 length_group <- c("0-200", "201-400")
 length_weight <- c(0.5, 0.5)
