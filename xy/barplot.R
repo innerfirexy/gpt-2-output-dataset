@@ -37,12 +37,36 @@ dt.gpt.melt.avg <- dt.gpt.melt[,
 
 # Plot
 # green:"#7CAE00" blue:"#00BFC4" red:"#F8766D" purple:"#C77CFF"
+
+# PSO T-test
+t.test(dt.gpt.melt[metric=="PSO" & model=="gpt2-md",]$score,
+       dt.gpt.melt[metric=="PSO" & model=="gpt2-sm",]$score)
+# t = -3.0562, df = 9964.7, p-value = 0.002248
+t.test(dt.gpt.melt[metric=="PSO" & model=="gpt2-lg",]$score,
+       dt.gpt.melt[metric=="PSO" & model=="gpt2-sm",]$score)
+# t = 3.3372, df = 9948.9, p-value = 0.0008493
+t.test(dt.gpt.melt[metric=="PSO" & model=="gpt2-xl",]$score,
+       dt.gpt.melt[metric=="PSO" & model=="gpt2-sm",]$score)
+# t = 3.9763, df = 9937.6, p-value = 7.049e-05
+
 p1 <- ggplot(dt.gpt.melt.avg[metric=="PSO"], aes(x=model, y=score)) +
     geom_bar(stat="identity", width = 0.2, fill="#F8766D") +
     geom_errorbar(aes(ymin=ymin, ymax=ymax), width=.1) +
-    coord_cartesian(ylim = c(0.3, 0.4)) +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+    coord_cartesian(ylim = c(0.3, 0.4)) + theme_bw() +
+    scale_x_discrete(labels = c("GPT2-sm", "GPT2-md", "GPT2-lg", "GPT2-xl")) +
+    annotate("segment", x = 1.1, xend = 1.9, y = 0.35, yend = 0.35, size=1.0, color="blue",
+             arrow = arrow(ends = "both", angle=45, length = unit(0.3,"cm"))) +
+    annotate("text", x=1.5, y=0.355, label=expression(paste(italic(t)==-3.06^"**")), parse=TRUE, size=5) +
+    annotate("segment", x = 1.1, xend = 2.9, y = 0.37, yend = 0.37, size=1.0, color="blue",
+             arrow = arrow(ends = "both", angle=45, length = unit(0.3,"cm"))) +
+    annotate("text", x=2.0, y=0.375, label=expression(paste(italic(t)==3.34^"***")), parse=TRUE, size=5) +
+    annotate("segment", x = 1.1, xend = 3.9, y = 0.385, yend = 0.385, size=1.0, color="blue",
+             arrow = arrow(ends = "both", angle=45, length = unit(0.3,"cm"))) +
+    annotate("text", x=2.5, y=0.39, label=expression(paste(italic(t)==3.98^"***")), parse=TRUE, size=5) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          plot.title = element_text(hjust = 0.5, vjust=-8, size = 20)) +
     labs(x = "Model", y = "Score", title="PSO")
+ggsave("PSO_GPT2_old.pdf", plot=p1)
 
 p2 <- ggplot(dt.gpt.melt.avg[metric=="CORR"], aes(x=model, y=score)) +
     geom_bar(stat="identity", width = 0.2, fill="#7CAE00") +
@@ -68,13 +92,7 @@ p4 <- ggplot(dt.gpt.melt.avg[metric=="SPEAR"], aes(x=model, y=score)) +
 p <- p1+p2+p3+p4  + plot_layout(ncol=2)
 ggsave("FACE_GPT2_old.pdf", plot=p)
 
-# T-test
-t.test(dt.gpt.melt[metric=="PSO" & model=="gpt2-sm",]$score,
-       dt.gpt.melt[metric=="PSO" & model=="gpt2-md",]$score)
-t.test(dt.gpt.melt[metric=="PSO" & model=="gpt2-md",]$score,
-       dt.gpt.melt[metric=="PSO" & model=="gpt2-lg",]$score)
-t.test(dt.gpt.melt[metric=="PSO" & model=="gpt2-lg",]$score,
-       dt.gpt.melt[metric=="PSO" & model=="gpt2-xl",]$score)
+
 
 # Linear model
 lm.pso <- lm(score ~ model, data = dt.gpt.melt[metric=="PSO"])
