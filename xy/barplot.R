@@ -68,25 +68,67 @@ p1 <- ggplot(dt.gpt.melt.avg[metric=="PSO"], aes(x=model, y=score)) +
     labs(x = "Model", y = "Score", title="PSO")
 ggsave("PSO_GPT2_old.pdf", plot=p1)
 
+# CORR T-test
+t.test(dt.gpt.melt[metric=="CORR" & model=="gpt2-md",]$score,
+       dt.gpt.melt[metric=="CORR" & model=="gpt2-sm",]$score)
+# t = 2.2782, df = 9969.7, p-value = 0.02273
+t.test(dt.gpt.melt[metric=="CORR" & model=="gpt2-lg",]$score,
+       dt.gpt.melt[metric=="CORR" & model=="gpt2-sm",]$score)
+# t = -1.4071, df = 9941.5, p-value = 0.1594
+t.test(dt.gpt.melt[metric=="CORR" & model=="gpt2-xl",]$score,
+       dt.gpt.melt[metric=="CORR" & model=="gpt2-sm",]$score)
+# t = -1.4628, df = 9864.8, p-value = 0.1435
+t.test(dt.gpt.melt[metric=="CORR" & model=="gpt2-lg",]$score,
+       dt.gpt.melt[metric=="CORR" & model=="gpt2-md",]$score)
+# t = -3.7608, df = 9971.6, p-value = 0.0001703
+t.test(dt.gpt.melt[metric=="CORR" & model=="gpt2-xl",]$score,
+       dt.gpt.melt[metric=="CORR" & model=="gpt2-md",]$score)
+# t = -3.8743, df = 9912.6, p-value = 0.0001076
+
 p2 <- ggplot(dt.gpt.melt.avg[metric=="CORR"], aes(x=model, y=score)) +
     geom_bar(stat="identity", width = 0.2, fill="#7CAE00") +
     geom_errorbar(aes(ymin=ymin, ymax=ymax), width=.1) +
-    coord_cartesian(ylim = c(0.6, 0.7)) +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+    coord_cartesian(ylim = c(0.6, 0.7)) + theme_bw() +
+    scale_x_discrete(labels = c("GPT2-sm", "GPT2-md", "GPT2-lg", "GPT2-xl")) +
+    annotate("segment", x = 1.1, xend = 1.9, y = 0.65, yend = 0.65, size=1.0, color="blue",
+             arrow = arrow(ends = "both", angle=45, length = unit(0.3,"cm"))) +
+    annotate("text", x=1.5, y=0.655, label=expression(paste(italic(t)==2.28^"*")), parse=TRUE, size=5) +
+    annotate("segment", x = 2.1, xend = 2.9, y = 0.625, yend = 0.625, size=1.0, color="blue",
+             arrow = arrow(ends = "both", angle=45, length = unit(0.3,"cm"))) +
+    annotate("text", x=2.5, y=0.63, label=expression(paste(italic(t)==-3.76^"***")), parse=TRUE, size=5) +
+    annotate("segment", x = 2.1, xend = 3.9, y = 0.65, yend = 0.65, size=1.0, color="blue",
+             arrow = arrow(ends = "both", angle=45, length = unit(0.3,"cm"))) +
+    annotate("text", x=3.0, y=0.655, label=expression(paste(italic(t)==-3.87^"***")), parse=TRUE, size=5) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          plot.title = element_text(hjust = 0.5, vjust=-8, size = 20)) +
     labs(x = "Model", y = "Score", title="CORR")
+ggsave("CORR_GPT2_old.pdf", plot=p2)
+
+# SAM T-test
+t.test(dt.gpt.melt[metric=="SAM" & model=="gpt2-md",]$score,
+       dt.gpt.melt[metric=="SAM" & model=="gpt2-sm",]$score)
+# t = -2.1744, df = 9965, p-value = 0.0297
+t.test(dt.gpt.melt[metric=="SAM" & model=="gpt2-lg",]$score,
+       dt.gpt.melt[metric=="SAM" & model=="gpt2-sm",]$score)
+# t = 1.9944, df = 9924.7, p-value = 0.04614
+t.test(dt.gpt.melt[metric=="SAM" & model=="gpt2-xl",]$score,
+       dt.gpt.melt[metric=="SAM" & model=="gpt2-sm",]$score)
+# t = 2.4828, df = 9857.2, p-value = 0.01305
 
 p3 <- ggplot(dt.gpt.melt.avg[metric=="SAM"], aes(x=model, y=score)) +
   geom_bar(stat="identity", width = 0.2, fill="#00BFC4") +
   geom_errorbar(aes(ymin=ymin, ymax=ymax), width=.1) +
   coord_cartesian(ylim = c(0.2, 0.3)) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        plot.title = element_text(hjust = 0.5, vjust=-8, size = 20)) +
   labs(x = "Model", y = "Score", title="SAM")
 
 p4 <- ggplot(dt.gpt.melt.avg[metric=="SPEAR"], aes(x=model, y=score)) +
   geom_bar(stat="identity", width = 0.2, fill="#C77CFF") +
   geom_errorbar(aes(ymin=ymin, ymax=ymax), width=.1) +
   coord_cartesian(ylim = c(0.005, 0.02)) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        plot.title = element_text(hjust = 0.5, vjust=-8, size = 20)) +
   labs(x = "Model", y = "Score", title="SPEAR")
 
 p <- p1+p2+p3+p4  + plot_layout(ncol=2)
