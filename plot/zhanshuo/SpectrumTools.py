@@ -97,15 +97,16 @@ def getPSO(filepath1:str, filepath2:str):
         y1list = y1listlist[i]
         y2list = y2listlist[i]
 
-        # Check whether there is power value lower than 0. If so, move the whole spectrum upwards.
-        min1 = min(y1list)
-        min2 = min(y2list)
-        lowest_power = min(min1, min2)
-        if lowest_power<0:
-            # print('Move the curve upwords for '+ str(lowest_power))
-            y1list = [i - lowest_power for i in y1list]
-            y2list = [i - lowest_power for i in y2list]
-
+        # # Check whether there is power value lower than 0. If so, move the whole spectrum upwards.
+        # min1 = min(y1list)
+        # min2 = min(y2list)
+        # lowest_power = min(min1, min2)
+        # if lowest_power<0:
+        #     # print('Move the curve upwords for '+ str(lowest_power))
+        #     y1list = [i - lowest_power for i in y1list]
+        #     y2list = [i - lowest_power for i in y2list]
+        y1list = [abs(i) for i in y1list]
+        y2list = [abs[i] for i in y2list]
         ylists = []
         ylists.append(y1list)
         ylists.append(y2list)
