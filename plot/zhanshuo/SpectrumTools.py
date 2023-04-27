@@ -106,7 +106,7 @@ def getPSO(filepath1:str, filepath2:str):
         #     y1list = [i - lowest_power for i in y1list]
         #     y2list = [i - lowest_power for i in y2list]
         y1list = [abs(i) for i in y1list]
-        y2list = [abs[i] for i in y2list]
+        y2list = [abs(i) for i in y2list]
         ylists = []
         ylists.append(y1list)
         ylists.append(y2list)
