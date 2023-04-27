@@ -190,23 +190,42 @@ def getSAM(filepath1: str, filepath2: str):
     return sam_list
 
 
-for i in range(6):
+for i in range(15):
 
     human_list = [
         '/home/yyuan/gpt-2-output-dataset/james/gs_news/webtext.train.model=.news_0.fft.csv',
         '/home/yyuan/gpt-2-output-dataset/james/gs_news/webtext.train.model=.news_1.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/gs_news/webtext.train.model=.news_2.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/gs_news/webtext.train.model=.news_3.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/gs_news/webtext.train.model=.news_4.fft.csv',
         '/home/yyuan/gpt-2-output-dataset/james/gs_story/webtext.train.model=.story_0.fft.csv',
         '/home/yyuan/gpt-2-output-dataset/james/gs_story/webtext.train.model=.story_1.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/gs_story/webtext.train.model=.story_2.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/gs_story/webtext.train.model=.story_3.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/gs_story/webtext.train.model=.story_4.fft.csv',
         '/home/yyuan/gpt-2-output-dataset/james/gs_wiki/webtext.train.model=.wiki_0.fft.csv',
         '/home/yyuan/gpt-2-output-dataset/james/gs_wiki/webtext.train.model=.wiki_1.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/gs_wiki/webtext.train.model=.wiki_2.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/gs_wiki/webtext.train.model=.wiki_3.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/gs_wiki/webtext.train.model=.wiki_4.fft.csv',
     ]
     gen_text_list = [
-        '/home/yyuan/gpt-2-output-dataset/james/split_news/webtext.train.model=.bloom_560m.news.sorted.split.0.fft.csv',
-        '/home/yyuan/gpt-2-output-dataset/james/split_news/webtext.train.model=.bloom_560m.news.sorted.split.200.fft.csv',
-        '/home/yyuan/gpt-2-output-dataset/james/split_story/webtext.train.model=.bloom_560m.story.sorted.split.0.fft.csv',
-        '/home/yyuan/gpt-2-output-dataset/james/split_story/webtext.train.model=.bloom_560m.story.sorted.split.200.fft.csv',
-        '/home/yyuan/gpt-2-output-dataset/james/split_wiki/webtext.train.model=.bloom_560m.wiki.sorted.split.0.fft.csv',
-        '/home/yyuan/gpt-2-output-dataset/james/split_wiki/webtext.train.model=.bloom_560m.wiki.sorted.split.200.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/split_news/webtext.train.model=.bloom_7b1.news.sorted.split.0.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/split_news/webtext.train.model=.bloom_7b1.news.sorted.split.200.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/split_news/webtext.train.model=.bloom_7b1.news.sorted.split.400.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/split_news/webtext.train.model=.bloom_7b1.news.sorted.split.600.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/split_news/webtext.train.model=.bloom_7b1.news.sorted.split.800.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/split_story/webtext.train.model=.bloom_7b1.story.sorted.split.0.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/split_story/webtext.train.model=.bloom_7b1.story.sorted.split.200.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/split_story/webtext.train.model=.bloom_7b1.story.sorted.split.400.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/split_story/webtext.train.model=.bloom_7b1.story.sorted.split.600.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/split_story/webtext.train.model=.bloom_7b1.story.sorted.split.800.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/split_wiki/webtext.train.model=.bloom_7b1.wiki.sorted.split.0.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/split_wiki/webtext.train.model=.bloom_7b1.wiki.sorted.split.200.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/split_wiki/webtext.train.model=.bloom_7b1.wiki.sorted.split.400.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/split_wiki/webtext.train.model=.bloom_7b1.wiki.sorted.split.600.fft.csv',
+        '/home/yyuan/gpt-2-output-dataset/james/split_wiki/webtext.train.model=.bloom_7b1.wiki.sorted.split.800.fft.csv',
+
     ]
     print(human_list[i])
     print(gen_text_list[i])
@@ -234,7 +253,10 @@ for i in range(6):
     corr_pso_sam, _ = pearsonr(pso_list, sam_list)
     corr_pso_spear, _ = pearsonr(pso_list, spearmanr_list)
 
-    print(sum(pso_list) / len(pso_list))
+    print('PSO:', sum(pso_list) / len(pso_list))
+    print('Corr:', sum(corr_list) / len(corr_list))
+    print('SAM: ', sum(sam_list) / len(sam_list))
+    print('SPEAR: ', sum(spearmanr_list) / len(spearmanr_list))
     print(
         f'The correlation are {0}, {1}, {2} between pso and pearson, pso and sam, pso and spearmanr\n',
         corr_pso_corr, corr_pso_sam, corr_pso_spear)

@@ -108,19 +108,15 @@ def run_gpt2_old():
        # 'medium-345M.test.model=gpt2-medium.nll',
        # 'medium-345M.test.model=gpt2-large.nll',
        # 'medium-345M.test.model=gpt2-xl.nll',
-       # 'large-762M.test.model=gpt2.nll',
-       'large-762M.test.model=gpt2-medium.nll',
-        'large-762M.test.model=gpt2-large.nll',
-        'large-762M.test.model=gpt2-xl.nll',
-        'xl-1542M.test.model=gpt2.nll',
-        'xl-1542M.test.model=gpt2-medium.nll',
-        'xl-1542M.test.model=gpt2-large.nll',
-        'xl-1542M.test.model=gpt2-xl.nll']
-    # input_files = ['webtext.test.model=gpt2.nll',
-    #                'webtext.test.model=gpt2-medium.nll',
-    #                'webtext.test.model=gpt2-large.nll',
-    #                'webtext.test.model=gpt2-xl.nll']
-
+       'large-762M.test.model=gpt2.nll',
+       # 'large-762M.test.model=gpt2-medium.nll',
+       #  'large-762M.test.model=gpt2-large.nll',
+       #  'large-762M.test.model=gpt2-xl.nll',
+       #  'xl-1542M.test.model=gpt2.nll',
+       #  'xl-1542M.test.model=gpt2-medium.nll',
+       #  'xl-1542M.test.model=gpt2-large.nll',
+       #  'xl-1542M.test.model=gpt2-xl.nll'
+    ]
     # Periodogram, normalized
     # for input_file in input_files:
     #     df = fp_pipeline(data_dir + input_file, 'periodogram', normalize=True)
@@ -153,7 +149,21 @@ def run_bloomz_560m():
         output_file = data_dir + input_file[:-4] + '.fft.csv'
         df.to_csv(output_file, index=False)
 
+def run_webtext_old():
+    data_dir = '../data/data_gpt2_old/'
+    input_files = ['webtext.test.model=gpt2.nll',
+                   'webtext.test.model=gpt2-medium.nll',
+                   'webtext.test.model=gpt2-large.nll',
+                   'webtext.test.model=gpt2-xl.nll']
+    # FFT, not normalized
+    for input_file in input_files:
+        df = fp_pipeline(data_dir + input_file, 'fft', normalize=False)
+        output_file = data_dir + input_file[:-4] + '.fft.csv'
+        df.to_csv(output_file, index=False)
+
 
 if __name__ == '__main__':
     run_gpt2_old()
     # run_bloomz_560m()
+    # run_webtext_old()
+    pass
