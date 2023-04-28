@@ -161,9 +161,22 @@ def run_webtext_old():
         output_file = data_dir + input_file[:-4] + '.fft.csv'
         df.to_csv(output_file, index=False)
 
+def run_log_entropy():
+    data_dir = '../data/data_gpt2_old/'
+    input_files = [
+        # 'webtext.test.model=gpt2.nll_log',
+        'gpt2-sm.test.model=gpt2.nll_log',
+    ]
+    # FFT, not normalized
+    for input_file in input_files:
+        df = fp_pipeline(data_dir + input_file, 'fft', normalize=False)
+        output_file = data_dir + input_file + '.fft.csv'
+        df.to_csv(output_file, index=False)
+
 
 if __name__ == '__main__':
-    run_gpt2_old()
+    run_log_entropy()
+    # run_gpt2_old()
     # run_bloomz_560m()
     # run_webtext_old()
     pass
