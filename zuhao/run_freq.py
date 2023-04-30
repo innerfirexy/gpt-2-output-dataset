@@ -2,7 +2,7 @@ from scipy import signal
 from scipy.fft import fft, fftfreq, fftshift
 import numpy as np
 import pandas as pd
-import tqdm
+from tqdm import tqdm
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -37,7 +37,7 @@ def _read_data(data_file, N=np.inf):
 
 def compute_periodogram(data):
     freqs, powers = [], []
-    for i in tqdm.tqdm(range(len(data))):
+    for i in tqdm(range(len(data))):
         f, p = signal.periodogram(data[i])
         freqs.append(f)
         powers.append(p)
@@ -46,7 +46,7 @@ def compute_periodogram(data):
 
 def compute_fft(data):
     freqs, powers = [], []
-    for i in tqdm.tqdm(range(len(data))):
+    for i in tqdm(range(len(data))):
         x = data[i]
         try:
             freq_x = fftshift(fftfreq(x.shape[-1]))
@@ -94,6 +94,19 @@ def fp_pipeline(data_file,
     return df
 
 
+def extract_entropy(data_file):
+    import json
+    
+    # Read all data
+    entropy_list = []
+    with open(data_file, "r", errors="replace") as file:
+        for line in file:
+            entropy = json.loads(line)["nll4tok"]
+            entropy_list.append(entropy)       
+        entropy_list.insert(0, data_file)
+    return entropy_list
+
+
 ######
 # About normalization:
 # The following post suggest that we should normalize the input signal by dividing by the max.
@@ -102,21 +115,36 @@ def fp_pipeline(data_file,
 
 
 def test():
-    data_dir = '/root/autodl-tmp/gpt-2-output-dataset/data/'
-    middle = 'train_opt_6.7b_top_50_wiki'
-    input_files = [f'webtext.{middle}.sorted.split.0.nll',
-                   f'webtext.{middle}.sorted.split.200.nll',
-                   f'webtext.{middle}.sorted.split.400.nll',
-                   f'webtext.{middle}.sorted.split.600.nll',
-                   f'webtext.{middle}.sorted.split.800.nll']
+    import os
+    
+    data_dir = "/root/autodl-tmp/gpt-2-output-dataset/data_degen/conditional/"
+    input_files = os.listdir(data_dir)
+    
+    # Extract entropy
+    entropy_all = []
+    print("Extracting entropy......")
+    for input_file in tqdm(input_files, total=len(input_files)):
+        entropy_list = extract_entropy(data_dir + input_file)
+        entropy_all.append(entropy_list)
+        
+    # Write entropy
+    print("Writing entropy......")
+    for entropy_list in tqdm(entropy_all, total=len(entropy_all)):
+        output_file = entropy_list.pop(0).replace(".jsonl", ".nll")
+        with open(output_file, "w") as file:
+            for entropy in entropy_list:
+                for value in entropy:
+                    file.write(f"{value} ")
+                file.write("\n")
 
     # FFT, not normalized
-    for input_file in input_files:
-        df = fp_pipeline(data_dir + input_file, 'fft', normalize=False)
-        output_file = data_dir + input_file[:-4] + '.fft.csv'
+    input_files = [input_file for input_file in os.listdir(data_dir) if ".nll" in input_file]
+    for input_file in tqdm(input_files, total=len(input_files)):
+        df = fp_pipeline(data_dir + input_file, "fft", normalize=False)
+        output_file = data_dir + input_file[:-4] + ".fft.csv"
         df.to_csv(output_file, index=False)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     test()
     
