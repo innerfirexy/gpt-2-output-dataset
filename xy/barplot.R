@@ -197,11 +197,11 @@ summary(lm.spear)
 ####
 
 # Read raw .tsv files
-dt_lenGrp1 <- fread("QR_0-200.tsv")
-dt_lenGrp2 <- fread("QR_201-400.tsv")
-dt_lenGrp3 <- fread("QR_401-600.tsv")
-dt_lenGrp4 <- fread("QR_601-800.tsv")
-dt_lenGrp5 <- fread("QR_801-1024.tsv")
+dt_lenGrp1 <- fread("QR_0-200_new.tsv")
+dt_lenGrp2 <- fread("QR_201-400_new.tsv")
+dt_lenGrp3 <- fread("QR_401-600_new.tsv")
+dt_lenGrp4 <- fread("QR_601-800_new.tsv")
+dt_lenGrp5 <- fread("QR_801-1024_new.tsv")
 
 rename_raw_dt <- function (dt) {
   setnames(dt, c("V1", "V2", "V3", "V4", "V5", "V6"),
@@ -235,61 +235,60 @@ sample_size.melt <- melt(sample_size, id.vars = c("domain", "model"), variable.n
 # Join dt.melt with sample_size.melt
 dt.melt <- merge(dt.melt, sample_size.melt, by = c("domain", "model", "lengthGroup"))
 
-# Compute weighted average scores
-dt.melt.avg <- dt.melt[, .(score = weighted.mean(score, sampleSize)), by = c("domain", "metric", "model")]
-
-# Sanity check to see if NAs affect
-dt.melt2 <- copy(dt.melt)
-dt.melt2[is.na(score), score := 0]
-dt.melt2.avg <- dt.melt2[, .(score = weighted.mean(score, sampleSize)), by = c("domain", "metric", "model")]
-identical(dt.melt.avg, dt.melt2.avg) # FALSE
-all.equal(dt.melt.avg, dt.melt2.avg) # "Column 'score': 'is.NA' value mismatch: 0 in current 42 in target"
-# NAs remain in dt.melt.avg after calling weighted.mean()
-
-# Further sanity check
-tmp <- dt.melt[metric=="PSO" & model=="bloom_sm" & domain == "news",]
-tmp
-# domain    model lengthGroup metric     score sampleSize
-# 1:   news bloom_sm       0-200    PSO 0.7021831       4978
-# 2:   news bloom_sm     201-400    PSO 0.7275200         20
-# 3:   news bloom_sm     401-600    PSO        NA          1
-# 4:   news bloom_sm     601-800    PSO        NA          0
-# 5:   news bloom_sm    801-1024    PSO        NA          1
-weighted.mean(tmp$score, tmp$sampleSize) # NA returned
-weighted.mean(tmp$score, tmp$sampleSize, na.rm = TRUE) # 0.7022845
-tmp_score <- tmp$score
-tmp_score[is.na(tmp_score)] <- 0
-weighted.mean(tmp_score, tmp$sampleSize) # 0.7020035 ==> Not correct!
-# So, should not replace NAs with 0, but should use na.rm = TRUE in weighted.mean()
-dt.melt.avg[metric=="PSO" & model=="bloom_sm" & domain=="news",]
-# domain metric    model score
-# 1:   news    PSO bloom_sm    NA
-dt.melt2.avg[metric=="PSO" & model=="bloom_sm" & domain=="news",]
-# domain metric    model     score
-# 1:   news    PSO bloom_sm 0.7020035 ==> Not correct!
+# # Compute weighted average scores
+# dt.melt.avg <- dt.melt[, .(score = weighted.mean(score, sampleSize)), by = c("domain", "metric", "model")]
+#
+# # Sanity check to see if NAs affect
+# dt.melt2 <- copy(dt.melt)
+# dt.melt2[is.na(score), score := 0]
+# dt.melt2.avg <- dt.melt2[, .(score = weighted.mean(score, sampleSize)), by = c("domain", "metric", "model")]
+# identical(dt.melt.avg, dt.melt2.avg) # FALSE
+# all.equal(dt.melt.avg, dt.melt2.avg) # "Column 'score': 'is.NA' value mismatch: 0 in current 42 in target"
+# # NAs remain in dt.melt.avg after calling weighted.mean()
+#
+# # Further sanity check
+# tmp <- dt.melt[metric=="PSO" & model=="bloom_sm" & domain == "news",]
+# tmp
+# # domain    model lengthGroup metric     score sampleSize
+# # 1:   news bloom_sm       0-200    PSO 0.7021831       4978
+# # 2:   news bloom_sm     201-400    PSO 0.7275200         20
+# # 3:   news bloom_sm     401-600    PSO        NA          1
+# # 4:   news bloom_sm     601-800    PSO        NA          0
+# # 5:   news bloom_sm    801-1024    PSO        NA          1
+# weighted.mean(tmp$score, tmp$sampleSize) # NA returned
+# weighted.mean(tmp$score, tmp$sampleSize, na.rm = TRUE) # 0.7022845
+# tmp_score <- tmp$score
+# tmp_score[is.na(tmp_score)] <- 0
+# weighted.mean(tmp_score, tmp$sampleSize) # 0.7020035 ==> Not correct!
+# # So, should not replace NAs with 0, but should use na.rm = TRUE in weighted.mean()
+# dt.melt.avg[metric=="PSO" & model=="bloom_sm" & domain=="news",]
+# # domain metric    model score
+# # 1:   news    PSO bloom_sm    NA
+# dt.melt2.avg[metric=="PSO" & model=="bloom_sm" & domain=="news",]
+# # domain metric    model     score
+# # 1:   news    PSO bloom_sm 0.7020035 ==> Not correct!
 
 # Re-calculate dt.melt.avg using na.rm = TRUE in weighted.mean()
 dt.melt.avg <- dt.melt[, .(score = weighted.mean(score, sampleSize, na.rm = TRUE)), by = c("domain", "metric", "model")]
-dt.melt.avg[metric=="PSO" & model=="bloom_sm" & domain=="news",]
-# domain metric    model     score
-# 1:   news    PSO bloom_sm 0.7022845
-# Now got correct number
-
+# dt.melt.avg[metric=="PSO" & model=="bloom_sm" & domain=="news",]
 # Add split `model` to `model name` and `model size`
 dt.melt.avg[, `:=`(modelName = gsub("_.*", "", model),
                    modelSize = gsub(".*_", "", model))]
 dt.melt.avg[, modelName := factor(modelName, levels = c("gpt2", "opt", "bloom"))]
 dt.melt.avg[, modelSize := factor(modelSize, levels = c("sm", "bg"))]
-dt.melt.avg[, metric := factor(metric, levels = c("PSO", "CORR", "SAM", "SPEAR"))]
+
+# Create FACE plot data
+dt.melt.avg.face <- dt.melt.avg[metric %in% c("PSO", "CORR", "SAM", "SPEAR"),]
+dt.melt.avg.face[, metric := factor(metric, levels = c("PSO", "CORR", "SAM", "SPEAR"))]
 
 # score ~ modelSize bar plot
-p1 <- ggplot(dt.melt.avg[metric=="PSO" & domain=="news"], aes(x = modelName, y = score, fill = modelSize)) +
+p1 <- ggplot(dt.melt.avg.face[metric=="PSO" & domain=="news"], aes(x = modelName, y = score, fill = modelSize)) +
   geom_bar(stat = "identity", position = "dodge") +
-  coord_cartesian(ylim = c(0.65, 0.75)) +
+  # coord_cartesian(ylim = c(0.65, 0.75)) +
   scale_fill_manual(values = c("sm" = "#00BFC4", "bg" = "#F8766D")) + # green:"#7CAE00" blue:"#00BFC4" red:"#F8766D" purple:"C77CFF"
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  labs(x = "Model", y = "Score", fill = "Size") + facet_wrap(~metric)
-# ggsave("PSO_news_modelSize.pdf", plot=p1)
+  theme_bw() + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(x = "Model", y = "Score", fill = "Size")
+ggsave("PSO_news_modelSize.pdf", plot=p1)
 
 p2 <- ggplot(dt.melt.avg[metric=="CORR" & domain=="news"], aes(x = modelName, y = score, fill = modelSize)) +
   geom_bar(stat = "identity", position = "dodge") +
@@ -318,13 +317,60 @@ p4 <- ggplot(dt.melt.avg[metric=="SPEAR" & domain=="news"], aes(x = modelName, y
 p <- p1 + p2 + p3 + p4 + guide_area() + plot_layout(ncol=5, guides = "collect")
 ggsave("news_modelSize.pdf", plot=p, width=20, height=5)
 
-# Using facet_grid
-target_metrics <- c("PSO", "CORR", "SAM", "SPEAR")
+# Plot PSO only in separate models
+p_pso_gpt2 <- ggplot(dt.melt.avg.face[metric=="PSO" & modelName=="gpt2"], aes(x = modelName, y = score, fill = modelSize)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_cartesian(ylim = c(0.70, 0.75)) +
+  scale_fill_manual(values = c("sm" = "#00BFC4", "bg" = "#F8766D")) + # green:"#7CAE00" blue:"#00BFC4" red:"#F8766D" purple:"C77CFF"
+  theme_bw() + theme(axis.text.x = element_blank()) +
+  labs(x = "Model: GPT2", y = "Score", fill = "Size") + facet_grid(metric~domain, scales="free_y")
+ggsave("PSO_GPT2_x_domain.pdf", plot=p_pso_gpt2, width=9, height = 3)
+
+p_pso_opt <- ggplot(dt.melt.avg.face[metric=="PSO" & modelName=="opt"], aes(x = modelName, y = score, fill = modelSize)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_cartesian(ylim = c(0.35, 0.45)) +
+  scale_fill_manual(values = c("sm" = "#00BFC4", "bg" = "#F8766D")) + # green:"#7CAE00" blue:"#00BFC4" red:"#F8766D" purple:"C77CFF"
+  theme_bw() + theme(axis.text.x = element_blank()) +
+  labs(x = "Model: OPT", y = "Score", fill = "Size") + facet_grid(metric~domain, scales="free_y")
+ggsave("PSO_OPT_x_domain.pdf", plot=p_pso_opt, width=9, height = 3)
+
+p_pso_bloom <- ggplot(dt.melt.avg.face[metric=="PSO" & modelName=="bloom"], aes(x = modelName, y = score, fill = modelSize)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_cartesian(ylim = c(0.6, 0.75)) +
+  scale_fill_manual(values = c("sm" = "#00BFC4", "bg" = "#F8766D")) + # green:"#7CAE00" blue:"#00BFC4" red:"#F8766D" purple:"C77CFF"
+  theme_bw() + theme(axis.text.x = element_blank()) +
+  labs(x = "Model: BLOOM", y = "Score", fill = "Size") + facet_grid(metric~domain, scales="free_y")
+ggsave("PSO_BLOOM_x_domain.pdf", plot=p_pso_bloom, width=9, height = 3)
+
+# Plot MAUVE for GPT2, for comparison
+p_mauve_gpt2 <- ggplot(dt.melt.avg[metric=="MAUVE" & modelName=="gpt2"], aes(x = modelName, y = score, fill = modelSize)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  # coord_cartesian(ylim = c(0.6, 0.75)) +
+  scale_fill_manual(values = c("sm" = "#00BFC4", "bg" = "#F8766D")) + # green:"#7CAE00" blue:"#00BFC4" red:"#F8766D" purple:"C77CFF"
+  theme_bw() + theme(axis.text.x = element_blank()) +
+  labs(x = "Model: GPT2", y = "Score", fill = "Size") + facet_grid(metric~domain, scales="free_y")
+ggsave("MAUVE_GPT2_x_domain.pdf", plot=p_mauve_gpt2, width=9, height = 3)
 
 
-p <- ggplot(dt.melt.avg[metric %in% target_metrics], aes(x = modelName, y = score, fill = modelSize)) +
+
+# Plot all metrics in separate models
+p_gpt2 <- ggplot(dt.melt.avg.face[modelName=="gpt2"], aes(x = modelName, y = score, fill = modelSize)) +
   geom_bar(stat = "identity", position = "dodge") +
   scale_fill_manual(values = c("sm" = "#00BFC4", "bg" = "#F8766D")) + # green:"#7CAE00" blue:"#00BFC4" red:"#F8766D" purple:"C77CFF"
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  labs(x = "Model", y = "Score", fill = "Size") + facet_grid(domain~metric, scales="free_y")
-ggsave("modelSize_facet_grid.pdf", plot=p)
+  theme_bw() + theme(axis.text.x = element_blank()) +
+  labs(x = "Model: GPT2", y = "Score", fill = "Size") + facet_grid(metric~domain, scales = "free_y")
+ggsave("FACE_gpt2_domain_x_metric.pdf", plot=p_gpt2)
+
+p_opt <- ggplot(dt.melt.avg.face[modelName=="opt"], aes(x = modelName, y = score, fill = modelSize)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_fill_manual(values = c("sm" = "#00BFC4", "bg" = "#F8766D")) + # green:"#7CAE00" blue:"#00BFC4" red:"#F8766D" purple:"C77CFF"
+  theme_bw() + theme(axis.text.x = element_blank()) +
+  labs(x = "Model: OPT", y = "Score", fill = "Size") + facet_grid(metric~domain, scales="free_y")
+ggsave("FACE_opt_domain_x_metric.pdf", plot=p_opt)
+
+p_bloom <- ggplot(dt.melt.avg.face[modelName=="bloom"], aes(x = modelName, y = score, fill = modelSize)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_fill_manual(values = c("sm" = "#00BFC4", "bg" = "#F8766D")) + # green:"#7CAE00" blue:"#00BFC4" red:"#F8766D" purple:"C77CFF"
+  theme_bw() + theme(axis.text.x = element_blank()) +
+  labs(x = "Model: BLOOM", y = "Score", fill = "Size") + facet_grid(metric~domain, scales="free_y")
+ggsave("FACE_bloom_domain_x_metric.pdf", plot=p_bloom)
