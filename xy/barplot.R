@@ -374,3 +374,23 @@ p_bloom <- ggplot(dt.melt.avg.face[modelName=="bloom"], aes(x = modelName, y = s
   theme_bw() + theme(axis.text.x = element_blank()) +
   labs(x = "Model: BLOOM", y = "Score", fill = "Size") + facet_grid(metric~domain, scales="free_y")
 ggsave("FACE_bloom_domain_x_metric.pdf", plot=p_bloom)
+
+
+####
+# Test GPT2 results from Bai
+####
+d <- fread("../huajun_notebook/result_labelled.csv")
+# manual compare
+mean(d[model=="gpt2", mauve]) # 0.3971391
+mean(d[model=="gpt2-xl", mauve]) # 0.3727455
+
+d2 <- fread("../huajun_notebook/Ans.txt")
+setnames(d2, c("group", "IoU", "CORR", "SAM", "SPEAR"))
+d2[, model := gsub("_.+_.+_*.*", "", d2$group)]
+
+mean(d2[model=="gpt2", IoU]) # 0.7407977
+mean(d2[model=="gpt2-xl", IoU]) # 0.7386446
+
+# t test
+t.test(d[model=="gpt2", mauve], d[model=="gpt2-xl", mauve]) # insignificant
+t.test(d2[model=="gpt2", IoU], d2[model=="gpt2-xl", IoU]) # insignificant
