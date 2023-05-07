@@ -209,7 +209,7 @@ rename_raw_dt <- function (dt) {
            skip_absent = TRUE)
   dt$domain <- rep(c("news", "story", "wiki"), each=14)
   dt$metric <- rep(c("MAUVE", "REP2", "REP3", "REP4", "Diversity", "Coherence", "BLEU", "Self-BLEU",
-                 "Perplexity", "Zipf", "PSO", "CORR", "SAM", "SPEAR"), 3)
+                 "Perplexity", "Zipf", "IoU", "CORR", "SAM", "SPEAR"), 3)
   dt
 }
 res_list <- lapply(list(dt_lenGrp1, dt_lenGrp2, dt_lenGrp3, dt_lenGrp4, dt_lenGrp5), rename_raw_dt)
@@ -278,11 +278,11 @@ dt.melt.avg[, modelName := factor(modelName, levels = c("gpt2", "opt", "bloom"))
 dt.melt.avg[, modelSize := factor(modelSize, levels = c("sm", "bg"))]
 
 # Create FACE plot data
-dt.melt.avg.face <- dt.melt.avg[metric %in% c("PSO", "CORR", "SAM", "SPEAR"),]
-dt.melt.avg.face[, metric := factor(metric, levels = c("PSO", "CORR", "SAM", "SPEAR"))]
+dt.melt.avg.face <- dt.melt.avg[metric %in% c("IoU", "CORR", "SAM", "SPEAR"),]
+dt.melt.avg.face[, metric := factor(metric, levels = c("IoU", "CORR", "SAM", "SPEAR"))]
 
 # score ~ modelSize bar plot
-p1 <- ggplot(dt.melt.avg.face[metric=="PSO" & domain=="news"], aes(x = modelName, y = score, fill = modelSize)) +
+p1 <- ggplot(dt.melt.avg.face[metric=="IoU" & domain=="news"], aes(x = modelName, y = score, fill = modelSize)) +
   geom_bar(stat = "identity", position = "dodge") +
   # coord_cartesian(ylim = c(0.65, 0.75)) +
   scale_fill_manual(values = c("sm" = "#00BFC4", "bg" = "#F8766D")) + # green:"#7CAE00" blue:"#00BFC4" red:"#F8766D" purple:"C77CFF"
@@ -318,29 +318,29 @@ p <- p1 + p2 + p3 + p4 + guide_area() + plot_layout(ncol=5, guides = "collect")
 ggsave("news_modelSize.pdf", plot=p, width=20, height=5)
 
 # Plot PSO only in separate models
-p_pso_gpt2 <- ggplot(dt.melt.avg.face[metric=="PSO" & modelName=="gpt2"], aes(x = modelName, y = score, fill = modelSize)) +
+p_pso_gpt2 <- ggplot(dt.melt.avg.face[metric=="IoU" & modelName=="gpt2"], aes(x = modelName, y = score, fill = modelSize)) +
   geom_bar(stat = "identity", position = "dodge") +
   coord_cartesian(ylim = c(0.70, 0.75)) +
   scale_fill_manual(values = c("sm" = "#00BFC4", "bg" = "#F8766D")) + # green:"#7CAE00" blue:"#00BFC4" red:"#F8766D" purple:"C77CFF"
   theme_bw() + theme(axis.text.x = element_blank()) +
   labs(x = "Model: GPT2", y = "Score", fill = "Size") + facet_grid(metric~domain, scales="free_y")
-ggsave("PSO_GPT2_x_domain.pdf", plot=p_pso_gpt2, width=9, height = 3)
+ggsave("IoU_GPT2_x_domain.pdf", plot=p_pso_gpt2, width=9, height = 3)
 
-p_pso_opt <- ggplot(dt.melt.avg.face[metric=="PSO" & modelName=="opt"], aes(x = modelName, y = score, fill = modelSize)) +
+p_pso_opt <- ggplot(dt.melt.avg.face[metric=="IoU" & modelName=="opt"], aes(x = modelName, y = score, fill = modelSize)) +
   geom_bar(stat = "identity", position = "dodge") +
   coord_cartesian(ylim = c(0.35, 0.45)) +
   scale_fill_manual(values = c("sm" = "#00BFC4", "bg" = "#F8766D")) + # green:"#7CAE00" blue:"#00BFC4" red:"#F8766D" purple:"C77CFF"
   theme_bw() + theme(axis.text.x = element_blank()) +
   labs(x = "Model: OPT", y = "Score", fill = "Size") + facet_grid(metric~domain, scales="free_y")
-ggsave("PSO_OPT_x_domain.pdf", plot=p_pso_opt, width=9, height = 3)
+ggsave("IoU_OPT_x_domain.pdf", plot=p_pso_opt, width=9, height = 3)
 
-p_pso_bloom <- ggplot(dt.melt.avg.face[metric=="PSO" & modelName=="bloom"], aes(x = modelName, y = score, fill = modelSize)) +
+p_pso_bloom <- ggplot(dt.melt.avg.face[metric=="IoU" & modelName=="bloom"], aes(x = modelName, y = score, fill = modelSize)) +
   geom_bar(stat = "identity", position = "dodge") +
   coord_cartesian(ylim = c(0.6, 0.75)) +
   scale_fill_manual(values = c("sm" = "#00BFC4", "bg" = "#F8766D")) + # green:"#7CAE00" blue:"#00BFC4" red:"#F8766D" purple:"C77CFF"
   theme_bw() + theme(axis.text.x = element_blank()) +
   labs(x = "Model: BLOOM", y = "Score", fill = "Size") + facet_grid(metric~domain, scales="free_y")
-ggsave("PSO_BLOOM_x_domain.pdf", plot=p_pso_bloom, width=9, height = 3)
+ggsave("IoU_BLOOM_x_domain.pdf", plot=p_pso_bloom, width=9, height = 3)
 
 # Plot MAUVE for GPT2, for comparison
 p_mauve_gpt2 <- ggplot(dt.melt.avg[metric=="MAUVE" & modelName=="gpt2"], aes(x = modelName, y = score, fill = modelSize)) +
@@ -355,25 +355,28 @@ ggsave("MAUVE_GPT2_x_domain.pdf", plot=p_mauve_gpt2, width=9, height = 3)
 
 # Plot all metrics in separate models
 p_gpt2 <- ggplot(dt.melt.avg.face[modelName=="gpt2"], aes(x = modelName, y = score, fill = modelSize)) +
-  geom_bar(stat = "identity", position = "dodge") +
+  geom_bar(stat = "identity", position = "dodge", width = .5) +
   scale_fill_manual(values = c("sm" = "#00BFC4", "bg" = "#F8766D")) + # green:"#7CAE00" blue:"#00BFC4" red:"#F8766D" purple:"C77CFF"
   theme_bw() + theme(axis.text.x = element_blank()) +
   labs(x = "Model: GPT2", y = "Score", fill = "Size") + facet_grid(metric~domain, scales = "free_y")
-ggsave("FACE_gpt2_domain_x_metric.pdf", plot=p_gpt2)
+ggsave("FACE_gpt2_domain_x_metric.pdf", plot=p_gpt2, width=5, height = 6)
 
 p_opt <- ggplot(dt.melt.avg.face[modelName=="opt"], aes(x = modelName, y = score, fill = modelSize)) +
-  geom_bar(stat = "identity", position = "dodge") +
+  geom_bar(stat = "identity", position = "dodge", width = .5) +
   scale_fill_manual(values = c("sm" = "#00BFC4", "bg" = "#F8766D")) + # green:"#7CAE00" blue:"#00BFC4" red:"#F8766D" purple:"C77CFF"
   theme_bw() + theme(axis.text.x = element_blank()) +
   labs(x = "Model: OPT", y = "Score", fill = "Size") + facet_grid(metric~domain, scales="free_y")
-ggsave("FACE_opt_domain_x_metric.pdf", plot=p_opt)
+ggsave("FACE_opt_domain_x_metric.pdf", plot=p_opt, width = 5, height = 6)
 
 p_bloom <- ggplot(dt.melt.avg.face[modelName=="bloom"], aes(x = modelName, y = score, fill = modelSize)) +
-  geom_bar(stat = "identity", position = "dodge") +
+  geom_bar(stat = "identity", position = "dodge", width = .5) +
   scale_fill_manual(values = c("sm" = "#00BFC4", "bg" = "#F8766D")) + # green:"#7CAE00" blue:"#00BFC4" red:"#F8766D" purple:"C77CFF"
   theme_bw() + theme(axis.text.x = element_blank()) +
   labs(x = "Model: BLOOM", y = "Score", fill = "Size") + facet_grid(metric~domain, scales="free_y")
-ggsave("FACE_bloom_domain_x_metric.pdf", plot=p_bloom)
+ggsave("FACE_bloom_domain_x_metric.pdf", plot=p_bloom, width = 5, height = 6)
+
+p <- p_gpt2 + p_opt + p_bloom + guide_area() + plot_layout(ncol=4, guides = "collect", widths = c(1, 1, 1, 0.2))
+ggsave("FACE_3models_domain_x_metric.pdf", plot=p, width=15, height=5)
 
 
 ####
@@ -387,6 +390,8 @@ mean(d[model=="gpt2-xl", mauve]) # 0.3727455
 d2 <- fread("../huajun_notebook/Ans.txt")
 setnames(d2, c("group", "IoU", "CORR", "SAM", "SPEAR"))
 d2[, model := gsub("_.+_.+_*.*", "", d2$group)]
+d2$domain <- rep(rep(c("story", "news", "wiki"), each=6), 2)
+d2$lengthGroup <- rep(c("0-200", "201-400", "401-600", "601-800", "801-1000", "all"), 6)
 
 mean(d2[model=="gpt2", IoU]) # 0.7407977
 mean(d2[model=="gpt2-xl", IoU]) # 0.7386446
@@ -394,3 +399,43 @@ mean(d2[model=="gpt2-xl", IoU]) # 0.7386446
 # t test
 t.test(d[model=="gpt2", mauve], d[model=="gpt2-xl", mauve]) # insignificant
 t.test(d2[model=="gpt2", IoU], d2[model=="gpt2-xl", IoU]) # insignificant
+
+# bar plot comparing gpt vs. gpt-xl
+p_gpt2 <- ggplot(d2, aes(x = lengthGroup, y = IoU, fill = model)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_fill_manual(values = c("gpt2" = "#00BFC4", "gpt2-xl" = "#F8766D")) + # green:"#7CAE00" blue:"#00BFC4" red:"#F8766D" purple:"C77CFF"
+  theme_bw() +
+  labs(x = "Length Group", y = "IoU", fill = "Model") + facet_grid(domain~.)
+ggsave("gpt2_vs_gpt2-xl_IoU_sepLen.pdf", plot=p_gpt2, width=9, height = 3)
+
+# IuU for all lengths
+p_gpt2 <- ggplot(d2[lengthGroup=="all"], aes(x = lengthGroup, y = IoU, fill = model)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_fill_manual(values = c("gpt2" = "#00BFC4", "gpt2-xl" = "#F8766D")) + # green:"#7CAE00" blue:"#00BFC4" red:"#F8766D" purple:"C77CFF"
+  theme_bw() + theme(axis.text.x = element_blank()) +
+  labs(y = "IoU", fill = "Model") + facet_grid(~domain)
+ggsave("gpt2_vs_gpt2-xl_IoU_allLen.pdf", plot=p_gpt2, width=9, height = 3)
+
+# CORR for all lengths
+p_gpt2 <- ggplot(d2[lengthGroup=="all"], aes(x = lengthGroup, y = CORR, fill = model)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_fill_manual(values = c("gpt2" = "#00BFC4", "gpt2-xl" = "#F8766D")) + # green:"#7CAE00" blue:"#00BFC4" red:"#F8766D" purple:"C77CFF"
+  theme_bw() + theme(axis.text.x = element_blank()) +
+  labs(y = "CORR", fill = "Model") + facet_grid(~domain)
+ggsave("gpt2_vs_gpt2-xl_CORR_allLen.pdf", plot=p_gpt2, width=9, height = 3)
+
+# SAM for all lengths
+p_gpt2 <- ggplot(d2[lengthGroup=="all"], aes(x = lengthGroup, y = SAM, fill = model)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_fill_manual(values = c("gpt2" = "#00BFC4", "gpt2-xl" = "#F8766D")) + # green:"#7CAE00" blue:"#00BFC4" red:"#F8766D" purple:"C77CFF"
+  theme_bw() + theme(axis.text.x = element_blank()) +
+  labs(y = "SAM", fill = "Model") + facet_grid(~domain)
+ggsave("gpt2_vs_gpt2-xl_SAM_allLen.pdf", plot=p_gpt2, width=9, height = 3)
+
+# SPEAR for all lengths
+p_gpt2 <- ggplot(d2[lengthGroup=="all"], aes(x = lengthGroup, y = SPEAR, fill = model)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_fill_manual(values = c("gpt2" = "#00BFC4", "gpt2-xl" = "#F8766D")) + # green:"#7CAE00" blue:"#00BFC4" red:"#F8766D" purple:"C77CFF"
+  theme_bw() + theme(axis.text.x = element_blank()) +
+  labs(y = "SPEAR", fill = "Model") + facet_grid(~domain)
+ggsave("gpt2_vs_gpt2-xl_SPEAR_allLen.pdf", plot=p_gpt2, width=9, height = 3)
