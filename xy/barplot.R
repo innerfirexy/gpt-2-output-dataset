@@ -276,10 +276,14 @@ dt.melt.avg[, `:=`(modelName = gsub("_.*", "", model),
                    modelSize = gsub(".*_", "", model))]
 dt.melt.avg[, modelName := factor(modelName, levels = c("gpt2", "opt", "bloom"))]
 dt.melt.avg[, modelSize := factor(modelSize, levels = c("sm", "bg"))]
+# write to csv
+fwrite(dt.melt.avg, "QR_avg.csv")
 
 # Create FACE plot data
 dt.melt.avg.face <- dt.melt.avg[metric %in% c("IoU", "CORR", "SAM", "SPEAR"),]
 dt.melt.avg.face[, metric := factor(metric, levels = c("IoU", "CORR", "SAM", "SPEAR"))]
+# write to csv
+fwrite(dt.melt.avg.face, "FACE_avg.csv")
 
 # score ~ modelSize bar plot
 p1 <- ggplot(dt.melt.avg.face[metric=="IoU" & domain=="news"], aes(x = modelName, y = score, fill = modelSize)) +
