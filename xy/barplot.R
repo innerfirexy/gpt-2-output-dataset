@@ -39,17 +39,17 @@ dt.gpt.melt.avg <- dt.gpt.melt[,
 # green:"#7CAE00" blue:"#00BFC4" red:"#F8766D" purple:"#C77CFF"
 
 # PSO T-test
-t.test(dt.gpt.melt[metric=="PSO" & model=="gpt2-md",]$score,
-       dt.gpt.melt[metric=="PSO" & model=="gpt2-sm",]$score)
+t.test(dt.gpt.melt[metric=="IoU" & model=="gpt2-md",]$score,
+       dt.gpt.melt[metric=="IoU" & model=="gpt2-sm",]$score)
 # t = -3.0562, df = 9964.7, p-value = 0.002248
-t.test(dt.gpt.melt[metric=="PSO" & model=="gpt2-lg",]$score,
-       dt.gpt.melt[metric=="PSO" & model=="gpt2-sm",]$score)
+t.test(dt.gpt.melt[metric=="IoU" & model=="gpt2-lg",]$score,
+       dt.gpt.melt[metric=="IoU" & model=="gpt2-sm",]$score)
 # t = 3.3372, df = 9948.9, p-value = 0.0008493
-t.test(dt.gpt.melt[metric=="PSO" & model=="gpt2-xl",]$score,
-       dt.gpt.melt[metric=="PSO" & model=="gpt2-sm",]$score)
+t.test(dt.gpt.melt[metric=="IoU" & model=="gpt2-xl",]$score,
+       dt.gpt.melt[metric=="IoU" & model=="gpt2-sm",]$score)
 # t = 3.9763, df = 9937.6, p-value = 7.049e-05
 
-p1 <- ggplot(dt.gpt.melt.avg[metric=="PSO"], aes(x=model, y=score)) +
+p1 <- ggplot(dt.gpt.melt.avg[metric=="IoU"], aes(x=model, y=score)) +
     geom_bar(stat="identity", width = 0.2, fill="#F8766D") +
     geom_errorbar(aes(ymin=ymin, ymax=ymax), width=.1) +
     coord_cartesian(ylim = c(0.3, 0.4)) + theme_bw() +
@@ -65,8 +65,8 @@ p1 <- ggplot(dt.gpt.melt.avg[metric=="PSO"], aes(x=model, y=score)) +
     annotate("text", x=3.5, y=0.365, label=expression(paste(italic(t)==3.98^"***")), parse=TRUE, size=5) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1),
           plot.title = element_text(hjust = 0.5, vjust=-8, size = 20)) +
-    labs(x = "Model", y = "Score", title="PSO")
-ggsave("PSO_GPT2_old.pdf", plot=p1)
+    labs(x = "Model", y = "Score", title="IoU")
+ggsave("IoU_GPT2_old.pdf", plot=p1)
 
 # CORR T-test
 t.test(dt.gpt.melt[metric=="CORR" & model=="gpt2-md",]$score,
@@ -161,7 +161,7 @@ ggsave("FACE_GPT2_old.pdf", plot=p, width=20, height=5.5)
 
 
 # Linear model
-lm.pso <- lm(score ~ model, data = dt.gpt.melt[metric=="PSO"])
+lm.pso <- lm(score ~ model, data = dt.gpt.melt[metric=="IoU"])
 summary(lm.pso)
 # Estimate Std. Error t value Pr(>|t|)
 # (Intercept)   0.361734   0.001000 361.690  < 2e-16 ***
@@ -247,7 +247,7 @@ dt.melt <- merge(dt.melt, sample_size.melt, by = c("domain", "model", "lengthGro
 # # NAs remain in dt.melt.avg after calling weighted.mean()
 #
 # # Further sanity check
-# tmp <- dt.melt[metric=="PSO" & model=="bloom_sm" & domain == "news",]
+# tmp <- dt.melt[metric=="IoU" & model=="bloom_sm" & domain == "news",]
 # tmp
 # # domain    model lengthGroup metric     score sampleSize
 # # 1:   news bloom_sm       0-200    PSO 0.7021831       4978
@@ -261,16 +261,16 @@ dt.melt <- merge(dt.melt, sample_size.melt, by = c("domain", "model", "lengthGro
 # tmp_score[is.na(tmp_score)] <- 0
 # weighted.mean(tmp_score, tmp$sampleSize) # 0.7020035 ==> Not correct!
 # # So, should not replace NAs with 0, but should use na.rm = TRUE in weighted.mean()
-# dt.melt.avg[metric=="PSO" & model=="bloom_sm" & domain=="news",]
+# dt.melt.avg[metric=="IoU" & model=="bloom_sm" & domain=="news",]
 # # domain metric    model score
 # # 1:   news    PSO bloom_sm    NA
-# dt.melt2.avg[metric=="PSO" & model=="bloom_sm" & domain=="news",]
+# dt.melt2.avg[metric=="IoU" & model=="bloom_sm" & domain=="news",]
 # # domain metric    model     score
 # # 1:   news    PSO bloom_sm 0.7020035 ==> Not correct!
 
 # Re-calculate dt.melt.avg using na.rm = TRUE in weighted.mean()
 dt.melt.avg <- dt.melt[, .(score = weighted.mean(score, sampleSize, na.rm = TRUE)), by = c("domain", "metric", "model")]
-# dt.melt.avg[metric=="PSO" & model=="bloom_sm" & domain=="news",]
+# dt.melt.avg[metric=="IoU" & model=="bloom_sm" & domain=="news",]
 # Add split `model` to `model name` and `model size`
 dt.melt.avg[, `:=`(modelName = gsub("_.*", "", model),
                    modelSize = gsub(".*_", "", model))]
