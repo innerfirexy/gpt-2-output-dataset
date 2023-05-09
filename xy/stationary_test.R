@@ -100,6 +100,9 @@ nrow(dt.bloom_wiki) # 3988866
 dt.bloom_wiki.test <- test_one_dt(dt.bloom_wiki)
 nrow(dt.bloom_wiki.test[adfpval < 0.05]) / nrow(dt.bloom_wiki.test) # 0.788 (78.8%)
 
+# bloom total
+(0.7672 * 2993315 + 0.6680402 * 3052753 + 0.788 * 3988866) / (2993315 + 3052753 + 3988866) # 0.7453023 (74.5%)
+
 # Test all opt data
 dt.opt <- read_multiple_nlls(files_opt_all)
 nrow(dt.opt) # 27766156
@@ -135,6 +138,9 @@ dt.gs_wiki <- read_multiple_nlls(files_gs_wiki)
 nrow(dt.gs_wiki) # 12469056
 dt.gs_wiki.test <- test_one_dt(dt.gs_wiki)
 nrow(dt.gs_wiki.test[adfpval < 0.05]) / nrow(dt.gs_wiki.test) # 0.97132 (97.1%)
+
+# gs total
+(0.9605625 * 8099091 + 0.9986 * 12791412 + 0.97132 * 12469056) / (8099091 + 12791412 + 12469056) # 0.9791685 (97.9%)
 
 
 
