@@ -50,24 +50,91 @@ p <- p.gpt2 + p.opt + p.bloom + p.gs + plot_layout(ncol=2)
 ggsave("typical_spectra.pdf", plot=p, width=8, height=8)
 
 
-# Read the FFT data
-d.wbt.fft <- fread("../data/data_gpt2_old/webtext.test.model=gpt2.fft.csv")
+# Find the peaks on human spectrum
 # Fit the GAM model
-gam.wbt <- gam(power ~ s(freq, bs="cs"), data=d.wbt.fft)
+d.gs.fft.gam <- gam(power ~ s(freq, bs="cs"), data=d.gs.fft)
 # Get predicted values on testing data
-test.wbt <- data.frame(freq = seq(0, 0.5, 0.01))
-test.wbt$power <- predict(gam.wbt, test.wbt)
+test <- data.frame(freq = seq(0, 0.5, 0.01))
+test$power <- predict(d.gs.fft.gam, test)
+test$freq[peaks(test$power)]
+test$power[peaks(test$power)]
 
-test.wbt$freq[peaks(test.wbt$power)]
-test.wbt$power[peaks(test.wbt$power)]
+# annotate the peaks and pits on p.gs
+peak_xs <- test$freq[peaks(test$power)]
+peak_ys <- test$power[peaks(test$power)]
+pit_xs <- test$freq[peaks(-test$power)]
+pit_ys <- test$power[peaks(-test$power)]
+
+peak_xs
+# 0.12 0.23 0.34 0.45
+pit_xs
+# 0.06 0.18 0.29 0.40
+
+p.gs.anno <- p.gs +
+  geom_point(data=data.frame(x=peak_xs[1:2], y=peak_ys[1:2]), aes(x, y), color="red", size=3) +
+  annotate("text", x=peak_xs[1]+0.07, y=peak_ys[1]+20,
+           label=expression(omega[2]==0.12), parse=TRUE, color="red", size=5) +
+  annotate("text", x=peak_xs[2]+0.05, y=peak_ys[2]+20,
+           label=expression(omega[4]==0.23), parse=TRUE, color="red", size=5) +
+  geom_point(data=data.frame(x=pit_xs[1:2], y=pit_ys[1:2]), aes(x, y), color="blue", size=3) +
+    annotate("text", x=pit_xs[1]+0.08, y=pit_ys[1]-5,
+             label=expression(omega[1]==0.06), parse=TRUE, color="blue", size=5) +
+    annotate("text", x=pit_xs[2]+0.08, y=pit_ys[2]-5,
+             label=expression(omega[3]==0.18), parse=TRUE, color="blue", size=5)
+ggsave("typical_spectrum_gs_anno.pdf", plot=p.gs.anno, width=4, height=4)
+
+
+# fit gam model on gpt2-xl, opt, bloom, and compute the peaks and pits
+d.gpt2.fft.gam <- gam(power ~ s(freq, bs="cs"), data=d.gpt2.fft)
+d.opt.fft.gam <- gam(power ~ s(freq, bs="cs"), data=d.opt.fft)
+d.bloom.fft.gam <- gam(power ~ s(freq, bs="cs"), data=d.bloom.fft)
+
+test_gpt2 <- data.frame(freq = seq(0, 0.5, 0.01))
+test_gpt2$power <- predict(d.gpt2.fft.gam, test_gpt2)
+peak_xs_gpt2 <- test_gpt2$freq[peaks(test_gpt2$power)]
+peak_ys_gpt2 <- test_gpt2$power[peaks(test_gpt2$power)]
+pit_xs_gpt2 <- test_gpt2$freq[peaks(-test_gpt2$power)]
+pit_ys_gpt2 <- test_gpt2$power[peaks(-test_gpt2$power)]
+
+test_opt <- data.frame(freq = seq(0, 0.5, 0.01))
+test_opt$power <- predict(d.opt.fft.gam, test_opt)
+peak_xs_opt <- test_opt$freq[peaks(test_opt$power)]
+peak_ys_opt <- test_opt$power[peaks(test_opt$power)]
+pit_xs_opt <- test_opt$freq[peaks(-test_opt$power)]
+pit_ys_opt <- test_opt$power[peaks(-test_opt$power)]
+
+test_bloom <- data.frame(freq = seq(0, 0.5, 0.01))
+test_bloom$power <- predict(d.bloom.fft.gam, test_bloom)
+peak_xs_bloom <- test_bloom$freq[peaks(test_bloom$power)]
+peak_ys_bloom <- test_bloom$power[peaks(test_bloom$power)]
+pit_xs_bloom <- test_bloom$freq[peaks(-test_bloom$power)]
+pit_ys_bloom <- test_bloom$power[peaks(-test_bloom$power)]
+
+
+# add peaks and pits dots to p.gpt2, p.opt, p.bloom
+p.gpt2.anno <- p.gpt2 +
+  geom_point(data=data.frame(x=peak_xs_gpt2[1:2], y=peak_ys_gpt2[1:2]), aes(x, y), color="red", size=3) +
+  geom_point(data=data.frame(x=pit_xs_gpt2[1:2], y=pit_ys_gpt2[1:2]), aes(x, y), color="blue", size=3)
+
+p.opt.anno <- p.opt +
+    geom_point(data=data.frame(x=peak_xs_opt[1:2], y=peak_ys_opt[1:2]), aes(x, y), color="red", size=3) +
+    geom_point(data=data.frame(x=pit_xs_opt[1:2], y=pit_ys_opt[1:2]), aes(x, y), color="blue", size=3)
+
+p.bloom.anno <- p.bloom +
+    geom_point(data=data.frame(x=peak_xs_bloom[1:2], y=peak_ys_bloom[1:2]), aes(x, y), color="red", size=3) +
+    geom_point(data=data.frame(x=pit_xs_bloom[1:2], y=pit_ys_bloom[1:2]), aes(x, y), color="blue", size=3)
+
+# Plot all annotated spectra together
+p.anno <- p.gpt2.anno + p.opt.anno + p.bloom.anno + p.gs.anno + plot_layout(ncol=2)
+ggsave("typical_spectra_anno.pdf", plot=p.anno, width=8, height=8)
+
 
 # According to the inverse transform of DFT (https://en.wikipedia.org/wiki/Discrete_Fourier_transform)
 # x_n = \frac{1}{N} \sum_{k=0}^{N-1} X_k \exp(2\pi i \frac{kn}{N})
 
-
-
 ####
 # log transformed entropy
+####
 d.logent.webtext <- fread("../data/data_gpt2_old/webtext.test.model=gpt2.nll_log.fft.csv")
 d.ent.webtext <- fread("../data/data_gpt2_old/webtext.test.model=gpt2.fft.csv")
 
