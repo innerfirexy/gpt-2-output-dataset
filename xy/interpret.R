@@ -11,6 +11,20 @@ d.opt.fft <- fread("../data/experiments_data/opt/webtext.train_opt_6.7b_top_50_n
 d.bloom.fft <- fread("../data/experiments_data/bloom/split_news/webtext.train.model=.bloom_7b1.news.sorted.split.400.fft.csv")
 d.gs.fft <- fread("../data/gs_james/gs_wiki/webtext.train.model=.wiki_3.fft.csv")
 
+# Calculate number of series
+d.gpt2.fft[, freq2 := shift(freq, 1, type="lead", fill=0.5)]
+d.gpt2.fft$diffSeries <- d.gpt2.fft$freq > d.gpt2.fft$freq2
+d.gpt2.fft$sid <- cumsum(d.gpt2.fft$diffSeries)
+d.gpt2.fft$sid <- shift(d.gpt2.fft$sid, 1, type="lag", fill=0)
+length(unique(d.gpt2.fft$sid)) # 5000
+
+d.gs.fft[, freq2 := shift(freq, 1, type="lead", fill=0.5)]
+d.gs.fft$diffSeries <- d.gs.fft$freq > d.gs.fft$freq2
+d.gs.fft$sid <- cumsum(d.gs.fft$diffSeries)
+d.gs.fft$sid <- shift(d.gs.fft$sid, 1, type="lag", fill=0)
+length(unique(d.gs.fft$sid)) # 5000
+
+
 # Four colors
 # gpt2-xl: #1f77b4
 # opt: #ff7f0e
@@ -76,11 +90,11 @@ p.gs.anno <- p.gs +
            label=expression(omega[2]==0.12), parse=TRUE, color="red", size=5) +
   annotate("text", x=peak_xs[2]+0.05, y=peak_ys[2]+20,
            label=expression(omega[4]==0.23), parse=TRUE, color="red", size=5) +
-  geom_point(data=data.frame(x=pit_xs[1:2], y=pit_ys[1:2]), aes(x, y), color="blue", size=3) +
-    annotate("text", x=pit_xs[1]+0.08, y=pit_ys[1]-5,
-             label=expression(omega[1]==0.06), parse=TRUE, color="blue", size=5) +
-    annotate("text", x=pit_xs[2]+0.08, y=pit_ys[2]-5,
-             label=expression(omega[3]==0.18), parse=TRUE, color="blue", size=5)
+  geom_point(data=data.frame(x=pit_xs[1:2], y=pit_ys[1:2]), aes(x, y), color="blue", shape=8, size=3) +
+  annotate("text", x=pit_xs[1]+0.08, y=pit_ys[1]-5,
+           label=expression(omega[1]==0.06), parse=TRUE, color="blue", size=5) +
+  annotate("text", x=pit_xs[2]+0.08, y=pit_ys[2]-5,
+           label=expression(omega[3]==0.18), parse=TRUE, color="blue", size=5)
 ggsave("typical_spectrum_gs_anno.pdf", plot=p.gs.anno, width=4, height=4)
 
 
@@ -113,8 +127,10 @@ pit_ys_bloom <- test_bloom$power[peaks(-test_bloom$power)]
 
 # add peaks and pits dots to p.gpt2, p.opt, p.bloom
 p.gpt2.anno <- p.gpt2 +
-  geom_point(data=data.frame(x=peak_xs_gpt2[1:2], y=peak_ys_gpt2[1:2]), aes(x, y), color="red", size=3) +
-  geom_point(data=data.frame(x=pit_xs_gpt2[1:2], y=pit_ys_gpt2[1:2]), aes(x, y), color="blue", size=3)
+  geom_point(data=data.frame(x=peak_xs_gpt2[1:2], y=peak_ys_gpt2[1:2]), aes(x, y),
+             color="red", size=3) +
+  geom_point(data=data.frame(x=pit_xs_gpt2[1:2], y=pit_ys_gpt2[1:2]), aes(x, y),
+             color="blue", size=3, shape=8)
 
 p.opt.anno <- p.opt +
     geom_point(data=data.frame(x=peak_xs_opt[1:2], y=peak_ys_opt[1:2]), aes(x, y), color="red", size=3) +
@@ -127,6 +143,9 @@ p.bloom.anno <- p.bloom +
 # Plot all annotated spectra together
 p.anno <- p.gpt2.anno + p.opt.anno + p.bloom.anno + p.gs.anno + plot_layout(ncol=2)
 ggsave("typical_spectra_anno.pdf", plot=p.anno, width=8, height=8)
+
+p.anno_2 <- p.gpt2.anno + p.gs.anno + plot_layout(ncol=2)
+ggsave("typical_spectra_anno_2.pdf", plot=p.anno_2, width=8, height=4)
 
 
 # According to the inverse transform of DFT (https://en.wikipedia.org/wiki/Discrete_Fourier_transform)
