@@ -17,39 +17,24 @@ dt.gpt.melt.avg <- dt.gpt.melt[,
     ymax=mean_cl_boot(score)$ymax),
   by=.(model, metric)]
 
-# model metric      score         se       ymin       ymax
-# 1: gpt2-sm    PSO 0.36173406 0.07222457 0.35966190 0.36394292
-# 2: gpt2-md    PSO 0.35731928 0.07198925 0.35549528 0.35919130
-# 3: gpt2-lg    PSO 0.36647975 0.06970611 0.36447413 0.36834607
-# 4: gpt2-xl    PSO 0.36732830 0.06823689 0.36552914 0.36933107
-# 5: gpt2-sm   CORR 0.64387949 0.17857189 0.63894868 0.64895271
-# 6: gpt2-md   CORR 0.65196329 0.17579772 0.64703070 0.65625519
-# 7: gpt2-lg   CORR 0.63897737 0.16923069 0.63407798 0.64357229
-# 8: gpt2-xl   CORR 0.63890149 0.16090606 0.63432248 0.64331422
-# 9: gpt2-sm    SAM 0.26932532 0.07216461 0.26735216 0.27144537
-# 10: gpt2-md    SAM 0.26617846 0.07232148 0.26418556 0.26809350
-# 11: gpt2-lg    SAM 0.27212628 0.06796322 0.27025366 0.27409354
-# 12: gpt2-xl    SAM 0.27273898 0.06496522 0.27092883 0.27449691
-# 13: gpt2-sm  SPEAR 0.01318690 0.06657260 0.01131595 0.01507262
-# 14: gpt2-md  SPEAR 0.01183850 0.06708888 0.01004044 0.01366267
-# 15: gpt2-lg  SPEAR 0.01408396 0.06633611 0.01225789 0.01592708
-# 16: gpt2-xl  SPEAR 0.01465889 0.06794342 0.01294357 0.01646325
-
 # Plot
 # green:"#7CAE00" blue:"#00BFC4" red:"#F8766D" purple:"#C77CFF"
 
+# Replace the old "IoU" with "SO" in the metric column
+dt.gpt.melt.avg[metric=="IoU", metric:="SO"]
+
 # PSO T-test
-t.test(dt.gpt.melt[metric=="IoU" & model=="gpt2-md",]$score,
-       dt.gpt.melt[metric=="IoU" & model=="gpt2-sm",]$score)
+t.test(dt.gpt.melt[metric=="SO" & model=="gpt2-md",]$score,
+       dt.gpt.melt[metric=="SO" & model=="gpt2-sm",]$score)
 # t = -3.0562, df = 9964.7, p-value = 0.002248
-t.test(dt.gpt.melt[metric=="IoU" & model=="gpt2-lg",]$score,
-       dt.gpt.melt[metric=="IoU" & model=="gpt2-sm",]$score)
+t.test(dt.gpt.melt[metric=="SO" & model=="gpt2-lg",]$score,
+       dt.gpt.melt[metric=="SO" & model=="gpt2-sm",]$score)
 # t = 3.3372, df = 9948.9, p-value = 0.0008493
-t.test(dt.gpt.melt[metric=="IoU" & model=="gpt2-xl",]$score,
-       dt.gpt.melt[metric=="IoU" & model=="gpt2-sm",]$score)
+t.test(dt.gpt.melt[metric=="SO" & model=="gpt2-xl",]$score,
+       dt.gpt.melt[metric=="SO" & model=="gpt2-sm",]$score)
 # t = 3.9763, df = 9937.6, p-value = 7.049e-05
 
-p1 <- ggplot(dt.gpt.melt.avg[metric=="IoU"], aes(x=model, y=score)) +
+p1 <- ggplot(dt.gpt.melt.avg[metric=="SO"], aes(x=model, y=score)) +
     geom_bar(stat="identity", width = 0.2, fill="#F8766D") +
     geom_errorbar(aes(ymin=ymin, ymax=ymax), width=.1) +
     coord_cartesian(ylim = c(0.3, 0.4)) + theme_bw() +
@@ -65,8 +50,8 @@ p1 <- ggplot(dt.gpt.melt.avg[metric=="IoU"], aes(x=model, y=score)) +
     annotate("text", x=3.5, y=0.365, label=expression(paste(italic(t)==3.98^"***")), parse=TRUE, size=5) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1),
           plot.title = element_text(hjust = 0.5, vjust=-8, size = 20)) +
-    labs(x = "Model", y = "Score", title="IoU")
-ggsave("IoU_GPT2_old.pdf", plot=p1)
+    labs(x = "Model", y = "Score", title="SO")
+ggsave("SO_GPT2_old.pdf", plot=p1)
 
 # CORR T-test
 t.test(dt.gpt.melt[metric=="CORR" & model=="gpt2-md",]$score,
@@ -157,11 +142,11 @@ ggsave("SPEAR_GPT2_old.pdf", plot=p4)
 
 # Plot 4 metrics in one
 p <- p1+p2+p3+p4  + plot_layout(ncol=4)
-ggsave("FACE_GPT2_old.pdf", plot=p, width=20, height=5.5)
+ggsave("FACE_GPT2_old.pdf", plot=p, width=18, height=5)
 
 
 # Linear model
-lm.pso <- lm(score ~ model, data = dt.gpt.melt[metric=="IoU"])
+lm.pso <- lm(score ~ model, data = dt.gpt.melt[metric=="SO"])
 summary(lm.pso)
 # Estimate Std. Error t value Pr(>|t|)
 # (Intercept)   0.361734   0.001000 361.690  < 2e-16 ***
@@ -209,7 +194,7 @@ rename_raw_dt <- function (dt) {
            skip_absent = TRUE)
   dt$domain <- rep(c("news", "story", "wiki"), each=14)
   dt$metric <- rep(c("MAUVE", "REP2", "REP3", "REP4", "Diversity", "Coherence", "BLEU", "Self-BLEU",
-                 "Perplexity", "Zipf", "IoU", "CORR", "SAM", "SPEAR"), 3)
+                 "Perplexity", "Zipf", "SO", "CORR", "SAM", "SPEAR"), 3)
   dt
 }
 res_list <- lapply(list(dt_lenGrp1, dt_lenGrp2, dt_lenGrp3, dt_lenGrp4, dt_lenGrp5), rename_raw_dt)
@@ -247,7 +232,7 @@ dt.melt <- merge(dt.melt, sample_size.melt, by = c("domain", "model", "lengthGro
 # # NAs remain in dt.melt.avg after calling weighted.mean()
 #
 # # Further sanity check
-# tmp <- dt.melt[metric=="IoU" & model=="bloom_sm" & domain == "news",]
+# tmp <- dt.melt[metric=="SO" & model=="bloom_sm" & domain == "news",]
 # tmp
 # # domain    model lengthGroup metric     score sampleSize
 # # 1:   news bloom_sm       0-200    PSO 0.7021831       4978
@@ -261,16 +246,16 @@ dt.melt <- merge(dt.melt, sample_size.melt, by = c("domain", "model", "lengthGro
 # tmp_score[is.na(tmp_score)] <- 0
 # weighted.mean(tmp_score, tmp$sampleSize) # 0.7020035 ==> Not correct!
 # # So, should not replace NAs with 0, but should use na.rm = TRUE in weighted.mean()
-# dt.melt.avg[metric=="IoU" & model=="bloom_sm" & domain=="news",]
+# dt.melt.avg[metric=="SO" & model=="bloom_sm" & domain=="news",]
 # # domain metric    model score
 # # 1:   news    PSO bloom_sm    NA
-# dt.melt2.avg[metric=="IoU" & model=="bloom_sm" & domain=="news",]
+# dt.melt2.avg[metric=="SO" & model=="bloom_sm" & domain=="news",]
 # # domain metric    model     score
 # # 1:   news    PSO bloom_sm 0.7020035 ==> Not correct!
 
 # Re-calculate dt.melt.avg using na.rm = TRUE in weighted.mean()
 dt.melt.avg <- dt.melt[, .(score = weighted.mean(score, sampleSize, na.rm = TRUE)), by = c("domain", "metric", "model")]
-# dt.melt.avg[metric=="IoU" & model=="bloom_sm" & domain=="news",]
+# dt.melt.avg[metric=="SO" & model=="bloom_sm" & domain=="news",]
 # Add split `model` to `model name` and `model size`
 dt.melt.avg[, `:=`(modelName = gsub("_.*", "", model),
                    modelSize = gsub(".*_", "", model))]
@@ -280,13 +265,13 @@ dt.melt.avg[, modelSize := factor(modelSize, levels = c("sm", "bg"))]
 fwrite(dt.melt.avg, "QR_avg.csv")
 
 # Create FACE plot data
-dt.melt.avg.face <- dt.melt.avg[metric %in% c("IoU", "CORR", "SAM", "SPEAR"),]
-dt.melt.avg.face[, metric := factor(metric, levels = c("IoU", "CORR", "SAM", "SPEAR"))]
+dt.melt.avg.face <- dt.melt.avg[metric %in% c("SO", "CORR", "SAM", "SPEAR"),]
+dt.melt.avg.face[, metric := factor(metric, levels = c("SO", "CORR", "SAM", "SPEAR"))]
 # write to csv
 fwrite(dt.melt.avg.face, "FACE_avg.csv")
 
 # score ~ modelSize bar plot
-p1 <- ggplot(dt.melt.avg.face[metric=="IoU" & domain=="news"], aes(x = modelName, y = score, fill = modelSize)) +
+p1 <- ggplot(dt.melt.avg.face[metric=="SO" & domain=="news"], aes(x = modelName, y = score, fill = modelSize)) +
   geom_bar(stat = "identity", position = "dodge") +
   # coord_cartesian(ylim = c(0.65, 0.75)) +
   scale_fill_manual(values = c("sm" = "#00BFC4", "bg" = "#F8766D")) + # green:"#7CAE00" blue:"#00BFC4" red:"#F8766D" purple:"C77CFF"
@@ -322,29 +307,29 @@ p <- p1 + p2 + p3 + p4 + guide_area() + plot_layout(ncol=5, guides = "collect")
 ggsave("news_modelSize.pdf", plot=p, width=20, height=5)
 
 # Plot PSO only in separate models
-p_pso_gpt2 <- ggplot(dt.melt.avg.face[metric=="IoU" & modelName=="gpt2"], aes(x = modelName, y = score, fill = modelSize)) +
+p_pso_gpt2 <- ggplot(dt.melt.avg.face[metric=="SO" & modelName=="gpt2"], aes(x = modelName, y = score, fill = modelSize)) +
   geom_bar(stat = "identity", position = "dodge") +
   coord_cartesian(ylim = c(0.70, 0.75)) +
   scale_fill_manual(values = c("sm" = "#00BFC4", "bg" = "#F8766D")) + # green:"#7CAE00" blue:"#00BFC4" red:"#F8766D" purple:"C77CFF"
   theme_bw() + theme(axis.text.x = element_blank()) +
   labs(x = "Model: GPT2", y = "Score", fill = "Size") + facet_grid(metric~domain, scales="free_y")
-ggsave("IoU_GPT2_x_domain.pdf", plot=p_pso_gpt2, width=9, height = 3)
+ggsave("SO_GPT2_x_domain.pdf", plot=p_pso_gpt2, width=9, height = 3)
 
-p_pso_opt <- ggplot(dt.melt.avg.face[metric=="IoU" & modelName=="opt"], aes(x = modelName, y = score, fill = modelSize)) +
+p_pso_opt <- ggplot(dt.melt.avg.face[metric=="SO" & modelName=="opt"], aes(x = modelName, y = score, fill = modelSize)) +
   geom_bar(stat = "identity", position = "dodge") +
   coord_cartesian(ylim = c(0.35, 0.45)) +
   scale_fill_manual(values = c("sm" = "#00BFC4", "bg" = "#F8766D")) + # green:"#7CAE00" blue:"#00BFC4" red:"#F8766D" purple:"C77CFF"
   theme_bw() + theme(axis.text.x = element_blank()) +
   labs(x = "Model: OPT", y = "Score", fill = "Size") + facet_grid(metric~domain, scales="free_y")
-ggsave("IoU_OPT_x_domain.pdf", plot=p_pso_opt, width=9, height = 3)
+ggsave("SO_OPT_x_domain.pdf", plot=p_pso_opt, width=9, height = 3)
 
-p_pso_bloom <- ggplot(dt.melt.avg.face[metric=="IoU" & modelName=="bloom"], aes(x = modelName, y = score, fill = modelSize)) +
+p_pso_bloom <- ggplot(dt.melt.avg.face[metric=="SO" & modelName=="bloom"], aes(x = modelName, y = score, fill = modelSize)) +
   geom_bar(stat = "identity", position = "dodge") +
   coord_cartesian(ylim = c(0.6, 0.75)) +
   scale_fill_manual(values = c("sm" = "#00BFC4", "bg" = "#F8766D")) + # green:"#7CAE00" blue:"#00BFC4" red:"#F8766D" purple:"C77CFF"
   theme_bw() + theme(axis.text.x = element_blank()) +
   labs(x = "Model: BLOOM", y = "Score", fill = "Size") + facet_grid(metric~domain, scales="free_y")
-ggsave("IoU_BLOOM_x_domain.pdf", plot=p_pso_bloom, width=9, height = 3)
+ggsave("SO_BLOOM_x_domain.pdf", plot=p_pso_bloom, width=9, height = 3)
 
 # Plot MAUVE for GPT2, for comparison
 p_mauve_gpt2 <- ggplot(dt.melt.avg[metric=="MAUVE" & modelName=="gpt2"], aes(x = modelName, y = score, fill = modelSize)) +
@@ -392,33 +377,33 @@ mean(d[model=="gpt2", mauve]) # 0.3971391
 mean(d[model=="gpt2-xl", mauve]) # 0.3727455
 
 d2 <- fread("../huajun_notebook/Ans.txt")
-setnames(d2, c("group", "IoU", "CORR", "SAM", "SPEAR"))
+setnames(d2, c("group", "SO", "CORR", "SAM", "SPEAR"))
 d2[, model := gsub("_.+_.+_*.*", "", d2$group)]
 d2$domain <- rep(rep(c("story", "news", "wiki"), each=6), 2)
 d2$lengthGroup <- rep(c("0-200", "201-400", "401-600", "601-800", "801-1000", "all"), 6)
 
-mean(d2[model=="gpt2", IoU]) # 0.7407977
-mean(d2[model=="gpt2-xl", IoU]) # 0.7386446
+mean(d2[model=="gpt2", SO]) # 0.7407977
+mean(d2[model=="gpt2-xl", SO]) # 0.7386446
 
 # t test
 t.test(d[model=="gpt2", mauve], d[model=="gpt2-xl", mauve]) # insignificant
-t.test(d2[model=="gpt2", IoU], d2[model=="gpt2-xl", IoU]) # insignificant
+t.test(d2[model=="gpt2", SO], d2[model=="gpt2-xl", SO]) # insignificant
 
 # bar plot comparing gpt vs. gpt-xl
-p_gpt2 <- ggplot(d2, aes(x = lengthGroup, y = IoU, fill = model)) +
+p_gpt2 <- ggplot(d2, aes(x = lengthGroup, y = SO, fill = model)) +
   geom_bar(stat = "identity", position = "dodge") +
   scale_fill_manual(values = c("gpt2" = "#00BFC4", "gpt2-xl" = "#F8766D")) + # green:"#7CAE00" blue:"#00BFC4" red:"#F8766D" purple:"C77CFF"
   theme_bw() +
-  labs(x = "Length Group", y = "IoU", fill = "Model") + facet_grid(domain~.)
-ggsave("gpt2_vs_gpt2-xl_IoU_sepLen.pdf", plot=p_gpt2, width=9, height = 3)
+  labs(x = "Length Group", y = "SO", fill = "Model") + facet_grid(domain~.)
+ggsave("gpt2_vs_gpt2-xl_SO_sepLen.pdf", plot=p_gpt2, width=9, height = 3)
 
 # IuU for all lengths
-p_gpt2 <- ggplot(d2[lengthGroup=="all"], aes(x = lengthGroup, y = IoU, fill = model)) +
+p_gpt2 <- ggplot(d2[lengthGroup=="all"], aes(x = lengthGroup, y = SO, fill = model)) +
   geom_bar(stat = "identity", position = "dodge") +
   scale_fill_manual(values = c("gpt2" = "#00BFC4", "gpt2-xl" = "#F8766D")) + # green:"#7CAE00" blue:"#00BFC4" red:"#F8766D" purple:"C77CFF"
   theme_bw() + theme(axis.text.x = element_blank()) +
-  labs(y = "IoU", fill = "Model") + facet_grid(~domain)
-ggsave("gpt2_vs_gpt2-xl_IoU_allLen.pdf", plot=p_gpt2, width=9, height = 3)
+  labs(y = "SO", fill = "Model") + facet_grid(~domain)
+ggsave("gpt2_vs_gpt2-xl_SO_allLen.pdf", plot=p_gpt2, width=9, height = 3)
 
 # CORR for all lengths
 p_gpt2 <- ggplot(d2[lengthGroup=="all"], aes(x = lengthGroup, y = CORR, fill = model)) +
