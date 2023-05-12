@@ -7,18 +7,20 @@ d.webtext <- fread("../data/data_gpt2_old/webtext.test.model=gpt2.fft.csv")
 nrow(d.gpt2sm)
 nrow(d.webtext)
 
-# Calculate number of series
-# shift the freq column by 1 row
-d.gpt2sm[, freq2 := shift(freq, 1, type="lead", fill=0.5)]
-d.gpt2sm$diffSeries <- d.gpt2sm$freq > d.gpt2sm$freq2
-d.gpt2sm$sid <- cumsum(d.gpt2sm$diffSeries)
-d.gpt2sm$sid <- shift(d.gpt2sm$sid, 1, type="lag", fill=0)
+
+# Add sid to each series
+add_sid <- function(dt) {
+    dt[, freq2 := shift(freq, 1, type="lead", fill=0.5)]
+    dt$diffSeries <- dt$freq > dt$freq2
+    dt$sid <- cumsum(dt$diffSeries)
+    dt$sid <- shift(dt$sid, 1, type="lag", fill=0)
+    dt
+}
+
+d.gpt2sm <- add_sid(d.gpt2sm)
 length(unique(d.gpt2sm$sid)) # 4981
 
-d.webtext[, freq2 := shift(freq, 1, type="lead", fill=0.5)]
-d.webtext$diffSeries <- d.webtext$freq > d.webtext$freq2
-d.webtext$sid <- cumsum(d.webtext$diffSeries)
-d.webtext$sid <- shift(d.webtext$sid, 1, type="lag", fill=0)
+d.webtext <- add_sid(d.webtext)
 length(unique(d.webtext$sid)) # 5000
 
 
@@ -33,28 +35,39 @@ y.webtext <- as.numeric(predict(gam.webtext, x))
 
 d <- data.table(x=x$freq, y.gpt2sm=y.gpt2sm, y.webtext=y.webtext)
 d <- melt(d, id.vars="x", variable.name="source", value.name="y")
-d$source <- factor(d$source, levels=c("y.gpt2sm", "y.webtext"))
+d$source <- factor(d$source, levels=c("y.gpt2sm", "y.webtext"), labels=c("model", "human"))
+
 
 # Plot areas
 p <- ggplot(d, aes(x=x, y=y)) +
-  geom_line(aes(color=source)) +
+  geom_line(aes(color=source, linetype=source)) +
   geom_ribbon(aes(fill=source, ymin=0,ymax=y), alpha=.5) +
   theme_bw() + theme(plot.title = element_text(hjust = 0.5, vjust=-8, size = 10),
     legend.position = c(.7,.7)) +
   ggtitle("Aggregated spectra") +
   labs(x = bquote(omega[k]), y = bquote(X(omega[k]))) +
-  scale_fill_brewer(palette="Set1") + scale_color_brewer(palette="Set1")
-ggsave("demo_spectral_overlap.pdf", plot=p, width=3, height=3)
+  scale_fill_brewer(palette="Set1") + scale_color_brewer(palette="Set1") +
+  scale_linetype_manual(values=c("dashed", "solid"))
+ggsave("demo_SO.pdf", plot=p, width=3, height=3)
+
+p.notitle <- p + theme(plot.title = element_blank(), axis.ticks = element_blank(),
+                       axis.text.x = element_blank(), axis.text.y = element_blank())
+ggsave("demo_SO_notitle.pdf", plot=p.notitle, width=2, height=2)
 
 p.abs <- ggplot(d, aes(x=x, y=abs(y))) +
-    geom_line(aes(color=source)) +
+    geom_line(aes(color=source, linetype=source)) +
     geom_ribbon(aes(fill=source, ymin=0,ymax=abs(y)), alpha=.5) +
     theme_bw() + theme(plot.title = element_text(hjust = 0.5, vjust=-8, size = 10),
         legend.position = c(.7,.7)) +
     ggtitle("Aggregated absolute spectra") +
     labs(x = bquote(omega[k]), y = bquote("|"~X(omega[k])~"|")) +
-    scale_fill_brewer(palette="Set1") + scale_color_brewer(palette="Set1")
-ggsave("demo_spectral_overlap_abs.pdf", plot=p.abs, width=3, height=3)
+    scale_fill_brewer(palette="Set1") + scale_color_brewer(palette="Set1") +
+    scale_linetype_manual(values=c("dashed", "solid"))
+ggsave("demo_SO_abs.pdf", plot=p.abs, width=3, height=3)
+
+p.abs.notitle <- p.abs + theme(plot.title = element_blank(), axis.ticks = element_blank(),
+                               axis.text.x = element_blank(), axis.text.y = element_blank())
+ggsave("demo_SO_abs_notitle.pdf", plot=p.abs.notitle, width=2, height=2)
 
 
 ###
