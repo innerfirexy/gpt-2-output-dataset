@@ -121,7 +121,8 @@ def test():
                     'webtext.train.model=_gpt2_p1.0_b.nll',
                     'webtext.train.model=_gpt2_xl_p0.95_a.nll',
                     'webtext.train.model=_gpt2_xl_p0.95_b.nll',
-                    'webtext.train.model=_gpt2_xl_p1.0_a.nll'
+                    'webtext.train.model=_gpt2_xl_p1.0_a.nll',
+                    'webtext.train.model=_gpt2_xl_p1.0_b.nll'
 ]
 
     # # Periodogram, normalized

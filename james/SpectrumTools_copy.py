@@ -202,26 +202,16 @@ text_length_tuple = (0, 1, 2, 3, 4)
 ans_str = ''
 
 human_list = [
-    '/home/yyuan/gpt-2-output-dataset/james/gs_news/webtext.train.model=.news_0.fft.csv',
-    '/home/yyuan/gpt-2-output-dataset/james/gs_news/webtext.train.model=.news_1.fft.csv',
-    '/home/yyuan/gpt-2-output-dataset/james/gs_story/webtext.train.model=.story_0.fft.csv',
-    '/home/yyuan/gpt-2-output-dataset/james/gs_story/webtext.train.model=.story_1.fft.csv',
-    '/home/yyuan/gpt-2-output-dataset/james/gs_wiki/webtext.train.model=.wiki_0.fft.csv',
-    '/home/yyuan/gpt-2-output-dataset/james/gs_wiki/webtext.train.model=.wiki_1.fft.csv',
+    '/home/yyuan/gpt-2-output-dataset/james/MAUVE_datasets/webtext.train.model=_gpt2_xl_p1.0_a.fft.csv'
 ]
 gen_text_list = [
-    '/home/yyuan/gpt-2-output-dataset/james/split_news/webtext.train.model=.bloom_560m.news.sorted.split.0.fft.csv',
-    '/home/yyuan/gpt-2-output-dataset/james/split_news/webtext.train.model=.bloom_560m.news.sorted.split.200.fft.csv',
-    '/home/yyuan/gpt-2-output-dataset/james/split_story/webtext.train.model=.bloom_560m.story.sorted.split.0.fft.csv',
-    '/home/yyuan/gpt-2-output-dataset/james/split_story/webtext.train.model=.bloom_560m.story.sorted.split.200.fft.csv',
-    '/home/yyuan/gpt-2-output-dataset/james/split_wiki/webtext.train.model=.bloom_560m.wiki.sorted.split.0.fft.csv',
-    '/home/yyuan/gpt-2-output-dataset/james/split_wiki/webtext.train.model=.bloom_560m.wiki.sorted.split.200.fft.csv',
+    '/home/yyuan/gpt-2-output-dataset/james/MAUVE_datasets/webtext.train.model=_gpt2_xl_p1.0_b.fft.csv'
 
 ]
 
 
     
-for text_length in range(6):
+for text_length in range(1):
     total_pso_list = []
     total_corr_list = []
     total_sam_list = []
@@ -258,10 +248,10 @@ for text_length in range(6):
     tmp_str = generated_filename
     ans_str = ans_str + tmp_str
     print(tmp_str)
-    print('pso: ', avg_pso)
-    print('corr: ', avg_corr)
-    print('sam: ', avg_sam)
-    print('spearmanr: ', avg_spearmanr)
+    print('pso: ', "{:.3f}".format(avg_pso))
+    print('corr: ', "{:.3f}".format(avg_corr))
+    print('sam: ', "{:.3f}".format(avg_sam))
+    print('spearmanr: ', "{:.3f}".format(avg_spearmanr))
     
 
 # with open('Ans.txt','w') as f:
