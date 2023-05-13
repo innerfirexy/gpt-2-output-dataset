@@ -7,7 +7,7 @@ from simctg.evaluation import measure_repetition_and_diversity
 from simcse import SimCSE
 from Bleu import Bleu
 from SelfBleu import SelfBleu
-
+import pandas as pd
 import os
 
 # Set TOKENIZERS_PARALLELISM to 'true' or 'false' to avoid warning
@@ -55,32 +55,34 @@ def compute_mauve(human_text, gen_text, max_len):
     :return mauve_score: MAUVE score of given text with reference to webtext
     
     """
-
+    mauve_list = []
     # call mauve.compute_mauve using raw text on GPU 0; each generation is truncated to {tgt_len} tokens
-    mauve_score = mauve.compute_mauve(
-        p_text=human_text,
-        q_text=gen_text,
-        device_id=0,
-        max_text_length=max_len,
-        verbose=False,
-        featurize_model_name="gpt2",
-    ).mauve
+    for h, g in zip(human_text, gen_text):
+        mauve_score = mauve.compute_mauve(
+            p_text=h,
+            q_text=g,
+            device_id=0,
+            max_text_length=max_len,
+            verbose=False,
+            featurize_model_name="gpt2",
+        ).mauve
+        mauve_list.append(mauve_score)
 
-    return mauve_score
+    return mauve_list
 
 
 
 if __name__ == "__main__":
     # hyper-parameters
-    tgt_len = 256   # max text length (1024 / 256 / 128); 128 is used in Contrastive Decoding code
+    tgt_len = 1024   # max text length (1024 / 256 / 128); 128 is used in Contrastive Decoding code
     split = "train"  # reference data source (train / valid / test)
 
     # load original human & model texts
     p_text_ = load_gpt2_dataset(
-        "/home/yyuan/gpt-2-output-dataset/james/wiki/wiki_4.jsonl"
+        "/home/yyuan/gpt-2-output-dataset/james/MAUVE_datasets/trun_b.jsonl"
     )  # human text
     q_text_ = load_gpt2_dataset(
-        "/home/yyuan/gpt-2-output-dataset/james/split_wiki/webtext.train.model=.bloom_7b1.wiki.sorted.split.800.jsonl"
+        "/home/yyuan/gpt-2-output-dataset/james/MAUVE_datasets/tunc_a.jsonl"
     )  # model text
 
     # tokenization & batch_decode
@@ -99,4 +101,7 @@ if __name__ == "__main__":
     # compute scores
     mauve_score = compute_mauve(p_text, q_text, tgt_len)
     print("mauve score:", mauve_score)
+    mauve_dict = {'mauve_score':mauve_score}
+    df=pd.DataFrame(mauve_dict)
+    df.to_csv('/home/yyuan/gpt-2-output-dataset/james/MAUVE_datasets/mauve_score.csv')
 

@@ -102,18 +102,27 @@ def fp_pipeline(data_file,
 
 
 def test():
-    data_dir = '/home/yyuan/gpt-2-output-dataset/james/split_wiki/'
+    data_dir = '/home/yyuan/gpt-2-output-dataset/james/MAUVE_datasets/'
     # input_files = ['small-117M.test.model=gpt2.nll',
     #                'small-117M.test.model=gpt2-medium.nll',
     #                'small-117M.test.model=gpt2-large.nll',
     #                'small-117M.test.model=gpt2-xl.nll']
-    input_files = ['webtext.train.model=.bloom_7b1.wiki.sorted.split.0.nll',
-                   'webtext.train.model=.bloom_7b1.wiki.sorted.split.200.nll',
-                   'webtext.train.model=.bloom_7b1.wiki.sorted.split.400.nll',
-                   'webtext.train.model=.bloom_7b1.wiki.sorted.split.600.nll',
-                   'webtext.train.model=.bloom_7b1.wiki.sorted.split.800.nll'
-    
-    ]
+    input_files = [ 'webtext.train.model=_gpt2_large_ p0.95_a.nll',
+                    'webtext.train.model=_gpt2_large_p0.95_b.nll',
+                    'webtext.train.model=_gpt2_large_p1.0_a.nll',
+                    'webtext.train.model=_gpt2_large_p1.0_b.nll',
+                    'webtext.train.model=_gpt2_medium_p0.9_a.nll',
+                    'webtext.train.model=_gpt2_medium_p0.9_b.nll',
+                    'webtext.train.model=_gpt2_medium_p1.0_a.nll',
+                    'webtext.train.model=_gpt2_medium_p1.0_b.nll',
+                    'webtext.train.model=_gpt2_p0.9_a.nll',
+                    'webtext.train.model=_gpt2_p0.9_b.nll',
+                    'webtext.train.model=_gpt2_p1.0_a.nll',
+                    'webtext.train.model=_gpt2_p1.0_b.nll',
+                    'webtext.train.model=_gpt2_xl_p0.95_a.nll',
+                    'webtext.train.model=_gpt2_xl_p0.95_b.nll',
+                    'webtext.train.model=_gpt2_xl_p1.0_a.nll'
+]
 
     # # Periodogram, normalized
     # for input_file in input_files:

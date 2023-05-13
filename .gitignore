@@ -8,3 +8,4 @@ launch.json
 .vscode/settings.json
 golden_reference/
 *.out
+gs_*/
