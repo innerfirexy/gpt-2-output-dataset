@@ -21,6 +21,7 @@ dt.gpt.melt.avg <- dt.gpt.melt[,
 # green:"#7CAE00" blue:"#00BFC4" red:"#F8766D" purple:"#C77CFF"
 
 # Replace the old "IoU" with "SO" in the metric column
+dt.gpt.melt[metric=="IoU", metric:="SO"]
 dt.gpt.melt.avg[metric=="IoU", metric:="SO"]
 
 # PSO T-test
@@ -220,40 +221,115 @@ sample_size.melt <- melt(sample_size, id.vars = c("domain", "model"), variable.n
 # Join dt.melt with sample_size.melt
 dt.melt <- merge(dt.melt, sample_size.melt, by = c("domain", "model", "lengthGroup"))
 
-# # Compute weighted average scores
-# dt.melt.avg <- dt.melt[, .(score = weighted.mean(score, sampleSize)), by = c("domain", "metric", "model")]
-#
-# # Sanity check to see if NAs affect
-# dt.melt2 <- copy(dt.melt)
-# dt.melt2[is.na(score), score := 0]
-# dt.melt2.avg <- dt.melt2[, .(score = weighted.mean(score, sampleSize)), by = c("domain", "metric", "model")]
-# identical(dt.melt.avg, dt.melt2.avg) # FALSE
-# all.equal(dt.melt.avg, dt.melt2.avg) # "Column 'score': 'is.NA' value mismatch: 0 in current 42 in target"
-# # NAs remain in dt.melt.avg after calling weighted.mean()
-#
-# # Further sanity check
-# tmp <- dt.melt[metric=="SO" & model=="bloom_sm" & domain == "news",]
-# tmp
-# # domain    model lengthGroup metric     score sampleSize
-# # 1:   news bloom_sm       0-200    PSO 0.7021831       4978
-# # 2:   news bloom_sm     201-400    PSO 0.7275200         20
-# # 3:   news bloom_sm     401-600    PSO        NA          1
-# # 4:   news bloom_sm     601-800    PSO        NA          0
-# # 5:   news bloom_sm    801-1024    PSO        NA          1
-# weighted.mean(tmp$score, tmp$sampleSize) # NA returned
-# weighted.mean(tmp$score, tmp$sampleSize, na.rm = TRUE) # 0.7022845
-# tmp_score <- tmp$score
-# tmp_score[is.na(tmp_score)] <- 0
-# weighted.mean(tmp_score, tmp$sampleSize) # 0.7020035 ==> Not correct!
-# # So, should not replace NAs with 0, but should use na.rm = TRUE in weighted.mean()
-# dt.melt.avg[metric=="SO" & model=="bloom_sm" & domain=="news",]
-# # domain metric    model score
-# # 1:   news    PSO bloom_sm    NA
-# dt.melt2.avg[metric=="SO" & model=="bloom_sm" & domain=="news",]
-# # domain metric    model     score
-# # 1:   news    PSO bloom_sm 0.7020035 ==> Not correct!
+##
+# add modelName and modelSize to dt.melt
+dt.melt[, `:=`(modelName = gsub("_.*", "", model),
+               modelSize = gsub(".*_", "", model))]
+# Only plot OPT and BLOOM
+nrow(dt.melt[modelName=="opt" & modelSize=="sm" & metric=="SO",]) # 15, enough for t-test
+t.test(dt.melt[modelName=="opt" & modelSize=="sm" & metric=="SO",]$score,
+        dt.melt[modelName=="opt" & modelSize=="bg" & metric=="SO",]$score)
 
-# Re-calculate dt.melt.avg using na.rm = TRUE in weighted.mean()
+# Test error bars with mean_cl_boot
+mean_cl_boot(dt.melt[modelName=="opt" & modelSize=="sm" & metric=="SO",]$score)$ymin
+mean_cl_boot(dt.melt[modelName=="opt" & modelSize=="sm" & metric=="SO",]$score)$ymax
+mean_cl_boot(dt.melt[modelName=="opt" & modelSize=="bg" & metric=="SO",]$score)$ymin
+mean_cl_boot(dt.melt[modelName=="opt" & modelSize=="bg" & metric=="SO",]$score)$ymax
+
+# Add ymin and ymax to dt.melt
+dt.melt.boot <- dt.melt[, .(score = mean(score, na.rm = TRUE),
+                            ymin = mean_cl_boot(score)$ymin,
+                            ymax = mean_cl_boot(score)$ymax),
+                        by = c("metric", "modelName", "modelSize")]
+dt.melt.boot$modelSize <- factor(dt.melt.boot$modelSize, levels = c("sm", "bg"))
+
+# Manually set colors
+# https://www.nceas.ucsb.edu/sites/default/files/2020-04/colorPaletteCheatsheet.pdf
+require("RColorBrewer")
+barcolors <- brewer.pal(3, "Set1")
+
+# Bar plots
+p.opt.corr <- ggplot(dt.melt.boot[modelName =="opt" & metric=="CORR"],
+                     aes(x=modelSize, y=score)) +
+    geom_bar(stat="identity", position=position_dodge(), width=0.5) +
+    geom_errorbar(aes(ymin=ymin, ymax=ymax), width=.2, position=position_dodge(.9)) +
+    coord_cartesian(ylim=c(0.6, 0.8)) + theme_bw() +
+    labs(x="OPT", y="Score", title="CORR")
+ggsave("QR_OPT_CORR.pdf", p.opt.corr, width=3, height=3)
+
+p.opt.sam <- ggplot(dt.melt.boot[modelName =="opt" & metric=="SAM"],
+                    aes(x=modelSize, y=score)) +
+    geom_bar(stat="identity", position=position_dodge(), width=0.5) +
+    geom_errorbar(aes(ymin=ymin, ymax=ymax), width=.2, position=position_dodge(.9)) +
+    coord_cartesian(ylim=c(0.2, 0.25)) + theme_bw() +
+    labs(x="OPT", y="Score", title="SAM") + facet_grid(~metric)
+ggsave("QR_OPT_SAM.pdf", p.opt.sam, width=3, height=3)
+
+p.opt.spear <- ggplot(dt.melt.boot[modelName =="opt" & metric=="SPEAR"],
+                      aes(x=modelSize, y=score)) +
+    geom_bar(stat="identity", position=position_dodge(), width=0.5) +
+    geom_errorbar(aes(ymin=ymin, ymax=ymax), width=.2, position=position_dodge(.9)) +
+    # coord_cartesian(ylim=c(0.2, 0.25)) + theme_bw() +
+    labs(x="OPT", y="Score", title="SPEAR")
+ggsave("QR_OPT_SPEAR.pdf", p.opt.spear, width=3, height=3)
+
+
+mean(dt.melt.boot[modelName =="opt" & metric=="SO" & modelSize=="sm",]$score) # 0.4272593
+mean(dt.melt.boot[modelName =="opt" & metric=="SO" & modelSize=="bg",]$score) # 0.4327276
+t.test(dt.melt[modelName =="opt" & metric=="SO" & modelSize=="sm",]$score,
+       dt.melt[modelName =="opt" & metric=="SO" & modelSize=="bg",]$score)
+# t = -1.0578, df = 27.269, p-value = 0.2994
+p.opt.so <- ggplot(dt.melt.boot[modelName =="opt" & metric=="SO"],
+                   aes(x=modelSize, y=score)) +
+  geom_bar(stat="identity", position=position_dodge(), width=0.2, fill=barcolors[1], alpha=.7) +
+  geom_errorbar(aes(ymin=ymin, ymax=ymax), width=.1, position=position_dodge(.9)) +
+  annotate("segment", x=1, y=0.427, xend=2, yend=0.433, color="blue", size=0.5, linetype="dashed") +
+  coord_cartesian(ylim=c(0.35, 0.45)) +
+  theme_bw() + theme(plot.title = element_text(hjust = 0.5, vjust=-8, size = 12)) +
+  labs(x="OPT", y="Score", title = "SO")
+ggsave("QR_OPT_SO.pdf", p.opt.so, width=3.5, height=4)
+
+# BLOOM
+mean(dt.melt.boot[modelName =="bloom" & metric=="SO" & modelSize=="sm",]$score) # 0.7173957
+mean(dt.melt.boot[modelName =="bloom" & metric=="SO" & modelSize=="bg",]$score) # 0.7322449
+t.test(dt.melt[modelName =="bloom" & metric=="SO" & modelSize=="sm",]$score,
+       dt.melt[modelName =="bloom" & metric=="SO" & modelSize=="bg",]$score)
+# t = -2.3628, df = 8.9361, p-value = 0.0426
+p.bloom.so <- ggplot(dt.melt.boot[modelName =="bloom" & metric=="SO"],
+                     aes(x=modelSize, y=score)) +
+    geom_bar(stat="identity", position=position_dodge(), width=0.2, fill=barcolors[2]) +
+    geom_errorbar(aes(ymin=ymin, ymax=ymax), width=.1, position=position_dodge(.9)) +
+    annotate("segment", x=1, y=0.717, xend=2, yend=0.732, color="blue", size=0.5, linetype="dashed") +
+    annotate("text", x=1.5, y=0.74, label=expression(italic(p)<0.05), size=4, color="blue") +
+    coord_cartesian(ylim=c(0.6, 0.8)) +
+    theme_bw() + theme(plot.title = element_text(hjust = 0.5, vjust=-8, size = 12)) +
+    labs(x="BLOOM", y="Score", title="SO")
+ggsave("QR_BLOOM_SO.pdf", p.bloom.so, width=3.5, height=4)
+
+
+# Plot SO from GPT2-old (-sm vs -xl) and OPT, BLOOM together
+dt.gpt.melt.avg[metric=="SO" & model=="gpt2-sm"]$score # 0.3617341
+dt.gpt.melt.avg[metric=="SO" & model=="gpt2-xl"]$score # 0.3673283
+t.test(dt.gpt.melt[metric=="SO" & model=="gpt2-sm"]$score,
+       dt.gpt.melt[metric=="SO" & model=="gpt2-xl"]$score)
+# t = -3.9763, df = 9937.6, p-value = 7.049e-05
+p.gpt2.so <- ggplot(dt.gpt.melt.avg[metric=="SO" & model %in% c("gpt2-sm", "gpt2-xl")], aes(x=model, y=score)) +
+  geom_bar(stat="identity", width = 0.2, fill=barcolors[3]) +
+  geom_errorbar(aes(ymin=ymin, ymax=ymax), width=.1) +
+    annotate("segment", x=1, y=0.361, xend=2, yend=0.367, color="blue", size=0.5, linetype="dashed") +
+    annotate("text", x=1.5, y=0.37, label=expression(italic(p)<.001), size=4, color="blue") +
+  coord_cartesian(ylim = c(0.3, 0.4)) +
+  theme_bw() + theme(plot.title = element_text(hjust = 0.5, vjust=-8, size = 12)) +
+  scale_x_discrete(labels = c("sm", "xl")) +
+  labs(x = "GPT2", y = "Score", title="SO")
+ggsave("GPT2old(sm+xl)_SO.pdf", plot=p.gpt2.so, width=3.5, height=4)
+
+p.so <- p.opt.so + p.bloom.so + p.gpt2.so + plot_layout(ncol=3)
+ggsave("QR(OPT+BLOOM)+GPT2old(sm+xl)_SO.pdf", p.so, width=10, height=3.6)
+
+
+##
+# Weighted average
 dt.melt.avg <- dt.melt[, .(score = weighted.mean(score, sampleSize, na.rm = TRUE)), by = c("domain", "metric", "model")]
 # dt.melt.avg[metric=="SO" & model=="bloom_sm" & domain=="news",]
 # Add split `model` to `model name` and `model size`
