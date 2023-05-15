@@ -276,14 +276,32 @@ ggsave("QR_OPT_SPEAR.pdf", p.opt.spear, width=3, height=3)
 
 mean(dt.melt.boot[modelName =="opt" & metric=="SO" & modelSize=="sm",]$score) # 0.4272593
 mean(dt.melt.boot[modelName =="opt" & metric=="SO" & modelSize=="bg",]$score) # 0.4327276
-t.test(dt.melt[modelName =="opt" & metric=="SO" & modelSize=="sm",]$score,
-       dt.melt[modelName =="opt" & metric=="SO" & modelSize=="bg",]$score)
-# t = -1.0578, df = 27.269, p-value = 0.2994
-p.opt.so <- ggplot(dt.melt.boot[modelName =="opt" & metric=="SO"],
-                   aes(x=modelSize, y=score)) +
+
+# Use of full data of SO on OPT to compute means and do t-test
+dt.opt.so <- fread("OPT_SO.csv")
+dt.opt.so.melt <- melt(dt.opt.so, variable.name = "group", value.name = "score")
+
+require("stringr")
+mean(dt.opt.so.melt[str_detect(group, "sm"),]$score) #0.4227081
+mean(dt.opt.so.melt[str_detect(group, "bg"),]$score) #0.426918
+t.test(dt.opt.so.melt[str_detect(group, "sm"),]$score,
+       dt.opt.so.melt[str_detect(group, "bg"),]$score)
+sm_ymin <- mean_cl_boot(dt.opt.so.melt[str_detect(group, "sm"),]$score)$ymin
+sm_ymax <- mean_cl_boot(dt.opt.so.melt[str_detect(group, "sm"),]$score)$ymax
+bg_ymin <- mean_cl_boot(dt.opt.so.melt[str_detect(group, "bg"),]$score)$ymin
+bg_ymax <- mean_cl_boot(dt.opt.so.melt[str_detect(group, "bg"),]$score)$ymax
+
+# t = -8.8394, df = 29879, p-value < 2.2e-16
+dt.opt.so.plot <- data.table(modelSize = c("sm", "bg"),
+                             score = c(0.4227081, 0.426918),
+                                ymin = c(sm_ymin, bg_ymin),
+                                ymax = c(sm_ymax, bg_ymax))
+dt.opt.so.plot$modelSize <- factor(dt.opt.so.plot$modelSize, levels = c("sm", "bg"))
+p.opt.so <- ggplot(dt.opt.so.plot, aes(x=modelSize, y=score)) +
   geom_bar(stat="identity", position=position_dodge(), width=0.2, fill=barcolors[1], alpha=.7) +
   geom_errorbar(aes(ymin=ymin, ymax=ymax), width=.1, position=position_dodge(.9)) +
-  annotate("segment", x=1, y=0.427, xend=2, yend=0.433, color="blue", size=0.5, linetype="dashed") +
+  annotate("segment", x=1, y=0.4227, xend=2, yend=0.4269, color="blue", size=0.5, linetype="dashed") +
+    annotate("text", x=1.5, y=0.43, label=expression(italic(p) < 0.001), color="blue", size=4) +
   coord_cartesian(ylim=c(0.35, 0.45)) +
   theme_bw() + theme(plot.title = element_text(hjust = 0.5, vjust=-8, size = 12)) +
   labs(x="OPT", y="Score", title = "SO")
