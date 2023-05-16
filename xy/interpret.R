@@ -179,6 +179,7 @@ d.gpt2xl.sample$source <- "GPT2-xl"
 d.gpt2sm.sample$source <- "GPT2-sm"
 d.gs.sample$source <- "human"
 d.sample <- rbind(d.gpt2xl.sample, d.gpt2sm.sample, d.gs.sample)
+d.sample$source <- factor(d.sample$source, levels=c("GPT2-xl", "GPT2-sm", "human"))
 
 p.sample <- ggplot(d.sample[freq>0], aes(x=freq, y=power)) +
     geom_line(aes(color=source, linetype=source)) +
