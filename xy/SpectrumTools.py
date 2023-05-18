@@ -164,5 +164,15 @@ def getSAM(filepath1: str, filepath2: str):
     return sam_list
 
 
+##
+# Write the experiment for measuing SO on OPT
+##
+def exp_OPT_SO():
+    fft_results_dir = "../data/experiments_data/opt-original/"
+    gs_news_dir = "../data/gs_james/gs_news/"
+    gs_story_dir = "../data/gs_james/gs_story/"
+    gs_wiki_dir = "../data/gs_james/gs_wiki/"
+    pass
+
 if __name__ == '__main__':
     pass
