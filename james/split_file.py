@@ -28,21 +28,3 @@ for i in range(5):
     if len_var == 800:
         len_gap += 25
 
-# var_len = 0
-# gap = 200
-# for num_rows in split_index:
-#     row_count = 0
-#     for index, row in tqdm(df.iterrows()):
-#         if row_count == num_rows:
-#             var_len += gap
-#         if row['token_len'] >= var_len and row["token_len"] < var_len + gap:
-#             with jsonlines.open(
-#                     gen_path + filename[:-5] + 'split.' + str(var_len) + ".jsonl",
-#                     "a") as w:
-#                 w.write({"prompt": row["prompt"], 'text': row["text"]})
-#             with open(gen_path + filename[:-5] + 'split.' + str(var_len) + ".nll",
-#                     "a") as we:
-#                 # print(row["entropy"], type(row["entropy"]))
-#                 entropy = ' '.join(f'{num:.4f}' for num in row["entropy"])
-#                 we.write(f'{entropy}\n')
-#             row_count += 1

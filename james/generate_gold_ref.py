@@ -62,8 +62,6 @@ def extract_golden_story():
 
 
 def compute_len_dist_news():
-    # politics [2816, 1490, 3211, 1345, 1184] 10046 - 11272/11272
-    # world [2697, 2359, 2507, 1210, 744] 9517  - 10145/10145
     len_dist = [0] * 5
     file = '/Users/james/Workspace/gpt-2-output-dataset/golden_reference/wikinews.csv'
     df = pd.read_csv(file)
