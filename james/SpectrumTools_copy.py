@@ -6,8 +6,9 @@ from scipy import interpolate
 from scipy.stats import pearsonr
 from scipy.stats import spearmanr
 
- # # 从csv文件中读出每个区间，区分方法为每个区间必须升序
-def getInterval(fre_power_filepath:str):
+
+# # 从csv文件中读出每个区间，区分方法为每个区间必须升序
+def getInterval(fre_power_filepath: str):
     spectrum = pd.read_csv(fre_power_filepath)
     spectrum['group'] = (spectrum['freq'].shift(1) > spectrum['freq']).cumsum()
     grouped_spectrum = spectrum.groupby('group')
@@ -20,21 +21,25 @@ def getInterval(fre_power_filepath:str):
 
     return freq_list, power_list
 
- # # 返回由散点模拟的函数（可以为线性，二次方程或者三次方程）
-def getF(freq_list:list, power_list:list):
+
+# # 返回由散点模拟的函数（可以为线性，二次方程或者三次方程）
+def getF(freq_list: list, power_list: list):
     f = interpolate.interp1d(freq_list, power_list, fill_value="extrapolate")
     return f
 
- # # 根据两个文件内容， 返回每个区间固定且相同间隔的x对应的y值，区间取值为[0, 0.5]
-def alignPoints(filepath1:str, filepath2:str):
+
+# # 根据两个文件内容， 返回每个区间固定且相同间隔的x对应的y值，区间取值为[0, 0.5]
+def alignPoints(filepath1: str, filepath2: str):
 
     freq_list_list_1, power_list_list_1 = getInterval(filepath1)
     freq_list_list_2, power_list_list_2 = getInterval(filepath2)
     print(
-        f'There are {len(freq_list_list_1)},{len(freq_list_list_2)} intervals in file {filepath1},{filepath2} respectively')
+        f'There are {len(freq_list_list_1)},{len(freq_list_list_2)} intervals in file {filepath1},{filepath2} respectively'
+    )
     y1listlist, y2listlist = [], []
 
-    short_length = len(freq_list_list_1) if len(freq_list_list_1)<len(freq_list_list_2) else len(freq_list_list_2)
+    short_length = len(freq_list_list_1) if len(freq_list_list_1) < len(
+        freq_list_list_2) else len(freq_list_list_2)
 
     for i in range(short_length):
         freq_list1 = freq_list_list_1[i]
@@ -60,9 +65,9 @@ def alignPoints(filepath1:str, filepath2:str):
 
     return x, y1listlist, y2listlist
 
+# # 为每个fre区间计算auc
 
 
- # # 为每个fre区间计算auc
 # def getPSO(filepath1:str, filepath2:str):
 #     area_floor_list, area_roof_list, pso_list = [], [], []
 
@@ -80,15 +85,15 @@ def alignPoints(filepath1:str, filepath2:str):
 #         area_floor = np.trapz(y_intersection, xlist)
 #         area_roof = np.trapz(y_roof, xlist)
 
-
 #         area_floor_list.append(area_floor)
 #         area_roof_list.append(area_roof)
 #         pso_list.append(round(area_floor / area_roof, 4))
 
 #     return area_floor_list, area_roof_list, pso_list
 
- # # 为每个fre区间计算auc
-def getPSO(filepath1:str, filepath2:str):
+
+# # 为每个fre区间计算auc
+def getPSO(filepath1: str, filepath2: str):
     area_floor_list, area_roof_list, pso_list = [], [], []
 
     xlist, y1listlist, y2listlist = alignPoints(filepath1, filepath2)
@@ -111,8 +116,6 @@ def getPSO(filepath1:str, filepath2:str):
         ylists.append(y1list)
         ylists.append(y2list)
 
-
-
         # plt.plot(x, y1, label=0)
         # plt.plot(x, y2, label=1)
 
@@ -134,7 +137,7 @@ def getPSO(filepath1:str, filepath2:str):
     return area_floor_list, area_roof_list, pso_list
 
 
-def getSpearmanr(filepath1:str, filepath2:str):
+def getSpearmanr(filepath1: str, filepath2: str):
     xlist, y1listlist, y2listlist = alignPoints(filepath1, filepath2)
     corr_list = []
 
@@ -146,8 +149,9 @@ def getSpearmanr(filepath1:str, filepath2:str):
         corr_list.append(corr)
     return corr_list
 
- # # 为每个fre区间计算PearsonCorelation
-def getPearson(filepath1:str, filepath2:str):
+
+# # 为每个fre区间计算PearsonCorelation
+def getPearson(filepath1: str, filepath2: str):
     xlist, y1listlist, y2listlist = alignPoints(filepath1, filepath2)
     corr_list = []
 
@@ -159,8 +163,9 @@ def getPearson(filepath1:str, filepath2:str):
         corr_list.append(corr)
     return corr_list
 
- # # Calculate the similarity between two spectra using Spectral Angle Mapper
-def getSAM(filepath1:str, filepath2:str):
+
+# # Calculate the similarity between two spectra using Spectral Angle Mapper
+def getSAM(filepath1: str, filepath2: str):
     xlist, y1listlist, y2listlist = alignPoints(filepath1, filepath2)
     sam_list = []
 
@@ -194,7 +199,6 @@ def getSAM(filepath1:str, filepath2:str):
 # sam_list = getSAM(filepath1, filepath2)
 # spearmanr_list = getSpearmanr(filepath1, filepath2)
 
-
 # Following code is to calculate pso and other metrics between many csvs
 data_sources = ('news', 'story', 'wiki')
 model_types = ('6.7b', '125m')
@@ -202,15 +206,12 @@ text_length_tuple = (0, 1, 2, 3, 4)
 ans_str = ''
 
 human_list = [
-    '/home/yyuan/gpt-2-output-dataset/james/MAUVE_datasets/webtext.train.model=_gpt2_xl_p1.0_a.fft.csv'
+    '/Users/james/Workspace/gpt-2-output-dataset/james/MAUVE_datasets/webtext.train.model=_gpt2_p1.0_a.fft.csv'
 ]
 gen_text_list = [
-    '/home/yyuan/gpt-2-output-dataset/james/MAUVE_datasets/webtext.train.model=_gpt2_xl_p1.0_b.fft.csv'
-
+    '/Users/james/Workspace/gpt-2-output-dataset/james/MAUVE_datasets/webtext.train.model=_gpt2_p1.0_b.fft.csv'
 ]
 
-
-    
 for text_length in range(1):
     total_pso_list = []
     total_corr_list = []
@@ -220,7 +221,8 @@ for text_length in range(1):
     # generated_filename = 'webtext.train_opt_' + model_type + '_top_50_' + data_source + '.sorted.split.' + str(text_length*200) + '.fft.csv'
     original_filename = human_list[text_length]
     generated_filename = gen_text_list[text_length]
-    area_floor_list, area_roof_list, pso_list = getPSO(original_filename, generated_filename)
+    area_floor_list, area_roof_list, pso_list = getPSO(original_filename,
+                                                       generated_filename)
     corr_list = getPearson(original_filename, generated_filename)
     sam_list = getSAM(original_filename, generated_filename)
     spearmanr_list = getSpearmanr(original_filename, generated_filename)
@@ -244,20 +246,17 @@ for text_length in range(1):
     # total_avg_corr = sum(total_corr_list)/len(total_corr_list)
     # total_avg_sam = sum(total_sam_list)/len(total_sam_list)
     # total_avg_spearmanr = sum(total_spearmanr_list)/len(total_spearmanr_list)
-    
+
     tmp_str = generated_filename
     ans_str = ans_str + tmp_str
     print(tmp_str)
-    print('pso: ', "{:.3f}".format(avg_pso))
-    print('corr: ', "{:.3f}".format(avg_corr))
-    print('sam: ', "{:.3f}".format(avg_sam))
-    print('spearmanr: ', "{:.3f}".format(avg_spearmanr))
-    
+    print('pso: ', avg_pso)
+    print('corr: ', avg_corr)
+    print('sam: ', avg_sam)
+    print('spearmanr: ', avg_spearmanr)
 
 # with open('Ans.txt','w') as f:
 #     f.write(ans_str)
-
-
 
 # calculate the corelation between pso and other metrics.
 
