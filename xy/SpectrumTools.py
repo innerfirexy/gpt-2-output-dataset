@@ -56,8 +56,8 @@ def alignPoints(filepath1: str, filepath2: str):
 
 # # 为每个fre区间计算auc
 
-# def getPSO(filepath1:str, filepath2:str):
-#     area_floor_list, area_roof_list, pso_list = [], [], []
+# def getSO(filepath1:str, filepath2:str):
+#     area_floor_list, area_roof_list, so_list = [], [], []
 
 #     xlist, y1listlist, y2listlist = alignPoints(filepath1, filepath2)
 
@@ -75,14 +75,14 @@ def alignPoints(filepath1: str, filepath2: str):
 
 #         area_floor_list.append(area_floor)
 #         area_roof_list.append(area_roof)
-#         pso_list.append(round(area_floor / area_roof, 4))
+#         so_list.append(round(area_floor / area_roof, 4))
 
-#     return area_floor_list, area_roof_list, pso_list
+#     return area_floor_list, area_roof_list, so_list
 
 
 # # 为每个fre区间计算auc
-def getPSO(filepath1: str, filepath2: str):
-    area_floor_list, area_roof_list, pso_list = [], [], []
+def getSO(filepath1: str, filepath2: str):
+    area_floor_list, area_roof_list, so_list = [], [], []
     xlist, y1listlist, y2listlist = alignPoints(filepath1, filepath2)
 
     for i in range(len(y1listlist)):
@@ -109,9 +109,9 @@ def getPSO(filepath1: str, filepath2: str):
 
         area_floor_list.append(area_floor)
         area_roof_list.append(area_roof)
-        pso_list.append(round(area_floor / area_roof, 4))
+        so_list.append(round(area_floor / area_roof, 4))
 
-    return area_floor_list, area_roof_list, pso_list
+    return area_floor_list, area_roof_list, so_list
 
 
 def getSpearmanr(filepath1: str, filepath2: str):
