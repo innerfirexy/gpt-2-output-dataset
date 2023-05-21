@@ -371,7 +371,7 @@ p1 <- ggplot(dt.melt.avg.face[metric=="SO" & domain=="news"], aes(x = modelName,
   scale_fill_manual(values = c("sm" = "#00BFC4", "bg" = "#F8766D")) + # green:"#7CAE00" blue:"#00BFC4" red:"#F8766D" purple:"C77CFF"
   theme_bw() + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   labs(x = "Model", y = "Score", fill = "Size")
-ggsave("PSO_news_modelSize.pdf", plot=p1)
+ggsave("SO_news_modelSize.pdf", plot=p1)
 
 p2 <- ggplot(dt.melt.avg[metric=="CORR" & domain=="news"], aes(x = modelName, y = score, fill = modelSize)) +
   geom_bar(stat = "identity", position = "dodge") +
@@ -400,7 +400,7 @@ p4 <- ggplot(dt.melt.avg[metric=="SPEAR" & domain=="news"], aes(x = modelName, y
 p <- p1 + p2 + p3 + p4 + guide_area() + plot_layout(ncol=5, guides = "collect")
 ggsave("news_modelSize.pdf", plot=p, width=20, height=5)
 
-# Plot PSO only in separate models
+# Plot SO only in separate models
 p_pso_gpt2 <- ggplot(dt.melt.avg.face[metric=="SO" & modelName=="gpt2"], aes(x = modelName, y = score, fill = modelSize)) +
   geom_bar(stat = "identity", position = "dodge") +
   coord_cartesian(ylim = c(0.70, 0.75)) +
