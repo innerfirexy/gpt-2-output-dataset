@@ -1,7 +1,7 @@
 require("ggplot2")
 require("data.table")
 require("mgcv")
-require("splus2R")
+require("splus2R") # For the peaks() function
 require("patchwork")
 
 ####
@@ -58,7 +58,6 @@ ggsave("typical_spectrum_bloom.pdf", plot=p.bloom, width=4, height=4)
 
 p.gs <- ggplot(d.gs.fft, aes(freq, power)) +
   geom_smooth(color=colors[3]) +
-  theme_bw() + theme(plot.title = element_text(hjust = 0.5, vjust=-8, size = 20)) +
   ggtitle("Human") +
   labs(x = bquote(omega[k]), y = bquote(X(omega[k])))
 ggsave("typical_spectrum_gs.pdf", plot=p.gs, width=4, height=4)

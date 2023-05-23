@@ -1,5 +1,6 @@
 require(ggplot2)
 require(data.table)
+require("patchwork")
 
 
 # Spectra from 4 estimators on webtext
@@ -98,5 +99,6 @@ ggsave("4estimators.gpt2xl.pdf", plot=p_gptxl, width=5, height=5)
 
 
 # Plot together
-p <- p_webtext + p_gpt2sm + p_gptmd + p_gptlg + p_gptxl + guide_area() + plot_layout(guides = 'collect', ncol = 2)
-ggsave("4estimators.all.pdf", plot=p, width=10, height=15)
+p <- p_webtext + p_gpt2sm + p_gptmd + p_gptlg + p_gptxl + guide_area() + 
+  plot_layout(guides = 'collect', ncol = 3)
+ggsave("4estimators.all.pdf", plot=p, width=15, height=10)

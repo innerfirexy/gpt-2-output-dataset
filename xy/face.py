@@ -7,7 +7,7 @@ from scipy.stats import pearsonr
 from scipy.stats import spearmanr
 
 
-# # 从csv文件中读出每个区间，区分方法为每个区间必须升序
+# Get the basises for interpolation
 def getInterval(fre_power_filepath: str):
     spectrum = pd.read_csv(fre_power_filepath)
     spectrum['group'] = (spectrum['freq'].shift(1) > spectrum['freq']).cumsum()
@@ -21,14 +21,12 @@ def getInterval(fre_power_filepath: str):
 
     return freq_list, power_list
 
-
-# # 返回由散点模拟的函数（可以为线性，二次方程或者三次方程）
+# Interpolate two sequences
 def getF(freq_list: list, power_list: list):
     f = interpolate.interp1d(freq_list, power_list, fill_value="extrapolate")
     return f
 
-
-# # 根据两个文件内容， 返回每个区间固定且相同间隔的x对应的y值，区间取值为[0, 0.5]
+# Interpolate all pairs of sequences between two files
 def alignPoints(filepath1: str, filepath2: str):
     freq_list_list_1, power_list_list_1 = getInterval(filepath1)
     freq_list_list_2, power_list_list_2 = getInterval(filepath2)
@@ -54,33 +52,7 @@ def alignPoints(filepath1: str, filepath2: str):
     return x, y1listlist, y2listlist
 
 
-# # 为每个fre区间计算auc
-
-# def getSO(filepath1:str, filepath2:str):
-#     area_floor_list, area_roof_list, so_list = [], [], []
-
-#     xlist, y1listlist, y2listlist = alignPoints(filepath1, filepath2)
-
-#     for i in range(len(y1listlist)):
-#         y1list = y1listlist[i]
-#         y2list = y2listlist[i]
-#         ylists = []
-#         ylists.append(y1list)
-#         ylists.append(y2list)
-
-#         y_intersection = np.amin(ylists, axis=0)
-#         y_roof = np.amax(ylists, axis=0)
-#         area_floor = np.trapz(y_intersection, xlist)
-#         area_roof = np.trapz(y_roof, xlist)
-
-#         area_floor_list.append(area_floor)
-#         area_roof_list.append(area_roof)
-#         so_list.append(round(area_floor / area_roof, 4))
-
-#     return area_floor_list, area_roof_list, so_list
-
-
-# # 为每个fre区间计算auc
+# Compute Spectral Overlap (SO)
 def getSO(filepath1: str, filepath2: str):
     area_floor_list, area_roof_list, so_list = [], [], []
     xlist, y1listlist, y2listlist = alignPoints(filepath1, filepath2)
@@ -88,14 +60,6 @@ def getSO(filepath1: str, filepath2: str):
     for i in range(len(y1listlist)):
         y1list = y1listlist[i]
         y2list = y2listlist[i]
-        # Check whether there is power value lower than 0. If so, move the whole spectrum upwards.
-        # min1 = min(y1list)
-        # min2 = min(y2list)
-        # lowest_power = min(min1, min2)
-        # if lowest_power < 0:
-        #     # print('Move the curve upwords for ' + str(lowest_power))
-        #     y1list = [i - lowest_power for i in y1list]
-        #     y2list = [i - lowest_power for i in y2list]
         y1list = [abs(i) for i in y1list]
         y2list = [abs(i) for i in y2list]
         ylists = []
@@ -114,6 +78,7 @@ def getSO(filepath1: str, filepath2: str):
     return area_floor_list, area_roof_list, so_list
 
 
+# Compute Spearman Rank Correlation (SPEAR)
 def getSpearmanr(filepath1: str, filepath2: str):
     xlist, y1listlist, y2listlist = alignPoints(filepath1, filepath2)
     corr_list = []
@@ -124,8 +89,7 @@ def getSpearmanr(filepath1: str, filepath2: str):
         corr_list.append(corr)
     return corr_list
 
-
-# # 为每个fre区间计算PearsonCorelation
+# Compute Pearson Correlation (CORR)
 def getPearson(filepath1: str, filepath2: str):
     xlist, y1listlist, y2listlist = alignPoints(filepath1, filepath2)
     corr_list = []
@@ -137,7 +101,7 @@ def getPearson(filepath1: str, filepath2: str):
     return corr_list
 
 
-# # Calculate the similarity between two spectra using Spectral Angle Mapper
+# Compute Spectral Angle Mapper (SAM)
 def getSAM(filepath1: str, filepath2: str):
     xlist, y1listlist, y2listlist = alignPoints(filepath1, filepath2)
     sam_list = []
@@ -152,20 +116,17 @@ def getSAM(filepath1: str, filepath2: str):
         # Normalize the spectra
         y1list /= np.linalg.norm(y1list)
         y2list /= np.linalg.norm(y2list)
-
         # Calculate the dot product
         dot_product = np.dot(y1list, y2list)
-
         # Calculate the SAM similarity
         sam_similarity = np.arccos(dot_product) / np.pi
-
         sam_list.append(sam_similarity)
 
     return sam_list
 
 
 ##
-# Write the experiment for measuing SO on OPT
+# The experiment for measuing SO on OPT
 ##
 def exp_OPT_SO():
     fft_results_dir = "../data/experiments_data/opt-original/"
