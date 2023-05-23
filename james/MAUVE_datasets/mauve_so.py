@@ -32,6 +32,8 @@ for index, row in df.iterrows():
 
 targt_df = df.iloc[index_list]
 
+targt_df.to_csv('human_mauve.csv', index=False)
+
 targt_df['trun_a'] = truncate_a
 # targt_df.to_json(
 #     '/Users/james/Workspace/gpt-2-output-dataset/james/MAUVE_datasets/tunc_a.jsonl',
