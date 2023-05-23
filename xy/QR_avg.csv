@@ -9,7 +9,7 @@ news,BLEU,bloom_bg,0.46240750868958,bloom,bg
 news,Self-BLEU,bloom_bg,0.50077335035822,bloom,bg
 news,Perplexity,bloom_bg,20.349278125,bloom,bg
 news,Zipf,bloom_bg,0.9662474109004,bloom,bg
-news,IoU,bloom_bg,0.72882347999608,bloom,bg
+news,SO,bloom_bg,0.72882347999608,bloom,bg
 news,CORR,bloom_bg,0.73321824046988,bloom,bg
 news,SAM,bloom_bg,0.23372587172124,bloom,bg
 news,SPEAR,bloom_bg,0.019201816756784,bloom,bg
@@ -23,7 +23,7 @@ news,BLEU,bloom_sm,0.38876721332605,bloom,sm
 news,Self-BLEU,bloom_sm,0.384154717071829,bloom,sm
 news,Perplexity,bloom_sm,25.2218324829932,bloom,sm
 news,Zipf,bloom_sm,0.963660986165386,bloom,sm
-news,IoU,bloom_sm,0.702284453793317,bloom,sm
+news,SO,bloom_sm,0.702284453793317,bloom,sm
 news,CORR,bloom_sm,0.614780293794798,bloom,sm
 news,SAM,bloom_sm,0.281008065930132,bloom,sm
 news,SPEAR,bloom_sm,0.0476536626223209,bloom,sm
@@ -37,7 +37,7 @@ news,BLEU,gpt2_bg,0.4595077233506,gpt2,bg
 news,Self-BLEU,gpt2_bg,0.57301524571,gpt2,bg
 news,Perplexity,gpt2_bg,17.4712375,gpt2,bg
 news,Zipf,gpt2_bg,0.9582038826784,gpt2,bg
-news,IoU,gpt2_bg,0.7372312801542,gpt2,bg
+news,SO,gpt2_bg,0.7372312801542,gpt2,bg
 news,CORR,gpt2_bg,0.7227705622932,gpt2,bg
 news,SAM,gpt2_bg,0.2401385525386,gpt2,bg
 news,SPEAR,gpt2_bg,0.0186472265826,gpt2,bg
@@ -51,7 +51,7 @@ news,BLEU,gpt2_sm,0.4749083609224,gpt2,sm
 news,Self-BLEU,gpt2_sm,0.6194741081924,gpt2,sm
 news,Perplexity,gpt2_sm,14.654125,gpt2,sm
 news,Zipf,gpt2_sm,0.9610898199608,gpt2,sm
-news,IoU,gpt2_sm,0.7400776401052,gpt2,sm
+news,SO,gpt2_sm,0.7400776401052,gpt2,sm
 news,CORR,gpt2_sm,0.7569786970784,gpt2,sm
 news,SAM,gpt2_sm,0.223528229186,gpt2,sm
 news,SPEAR,gpt2_sm,0.0208675426068,gpt2,sm
@@ -65,7 +65,7 @@ news,BLEU,opt_bg,0.4664639157038,opt,bg
 news,Self-BLEU,opt_bg,0.54342897371446,opt,bg
 news,Perplexity,opt_bg,20.3773125,opt,bg
 news,Zipf,opt_bg,0.96796663414058,opt,bg
-news,IoU,opt_bg,0.44000947999484,opt,bg
+news,SO,opt_bg,0.44000947999484,opt,bg
 news,CORR,opt_bg,0.7321746396984,opt,bg
 news,SAM,opt_bg,0.235549477265,opt,bg
 news,SPEAR,opt_bg,0.0205306858576,opt,bg
@@ -79,7 +79,7 @@ news,BLEU,opt_sm,0.48144602337924,opt,sm
 news,Self-BLEU,opt_sm,0.61123733304716,opt,sm
 news,Perplexity,opt_sm,18.80375,opt,sm
 news,Zipf,opt_sm,0.9654627890032,opt,sm
-news,IoU,opt_sm,0.43809635998868,opt,sm
+news,SO,opt_sm,0.43809635998868,opt,sm
 news,CORR,opt_sm,0.7458160947788,opt,sm
 news,SAM,opt_sm,0.2293504268392,opt,sm
 news,SPEAR,opt_sm,0.0166695754816,opt,sm
@@ -93,7 +93,7 @@ story,BLEU,bloom_bg,0.39676406254012,bloom,bg
 story,Self-BLEU,bloom_bg,0.45522567402394,bloom,bg
 story,Perplexity,bloom_bg,25.4871875,bloom,bg
 story,Zipf,bloom_bg,1.0582528368062,bloom,bg
-story,IoU,bloom_bg,0.73277438416224,bloom,bg
+story,SO,bloom_bg,0.73277438416224,bloom,bg
 story,CORR,bloom_bg,0.77171725406504,bloom,bg
 story,SAM,bloom_bg,0.21368651448528,bloom,bg
 story,SPEAR,bloom_bg,0.027160785129974,bloom,bg
@@ -107,7 +107,7 @@ story,BLEU,bloom_sm,0.116001751814016,bloom,sm
 story,Self-BLEU,bloom_sm,0.180424534859274,bloom,sm
 story,Perplexity,bloom_sm,26.7234152546621,bloom,sm
 story,Zipf,bloom_sm,0.998794262092039,bloom,sm
-story,IoU,bloom_sm,0.715069460632505,bloom,sm
+story,SO,bloom_sm,0.715069460632505,bloom,sm
 story,CORR,bloom_sm,0.573170751677883,bloom,sm
 story,SAM,bloom_sm,0.300199957648647,bloom,sm
 story,SPEAR,bloom_sm,0.049628488104608,bloom,sm
@@ -121,7 +121,7 @@ story,BLEU,gpt2_bg,0.4170850516942,gpt2,bg
 story,Self-BLEU,gpt2_bg,0.565129128145,gpt2,bg
 story,Perplexity,gpt2_bg,24.35049375,gpt2,bg
 story,Zipf,gpt2_bg,1.0854209154266,gpt2,bg
-story,IoU,gpt2_bg,0.7411394599056,gpt2,bg
+story,SO,gpt2_bg,0.7411394599056,gpt2,bg
 story,CORR,gpt2_bg,0.7869853545012,gpt2,bg
 story,SAM,gpt2_bg,0.2086465891206,gpt2,bg
 story,SPEAR,gpt2_bg,0.0222777875478,gpt2,bg
@@ -135,7 +135,7 @@ story,BLEU,gpt2_sm,0.438796427176,gpt2,sm
 story,Self-BLEU,gpt2_sm,0.617286930952,gpt2,sm
 story,Perplexity,gpt2_sm,16.704359375,gpt2,sm
 story,Zipf,gpt2_sm,1.0973834126256,gpt2,sm
-story,IoU,gpt2_sm,0.7455042201152,gpt2,sm
+story,SO,gpt2_sm,0.7455042201152,gpt2,sm
 story,CORR,gpt2_sm,0.8127948877894,gpt2,sm
 story,SAM,gpt2_sm,0.195028375292,gpt2,sm
 story,SPEAR,gpt2_sm,0.0234574258226,gpt2,sm
@@ -149,7 +149,7 @@ story,BLEU,opt_bg,0.28833275235436,opt,bg
 story,Self-BLEU,opt_bg,0.5106872007597,opt,bg
 story,Perplexity,opt_bg,36.68685,opt,bg
 story,Zipf,opt_bg,1.00316484070328,opt,bg
-story,IoU,opt_bg,0.40467663998318,opt,bg
+story,SO,opt_bg,0.40467663998318,opt,bg
 story,CORR,opt_bg,0.7049764088644,opt,bg
 story,SAM,opt_bg,0.2448313973852,opt,bg
 story,SPEAR,opt_bg,0.040810892443,opt,bg
@@ -163,7 +163,7 @@ story,BLEU,opt_sm,0.34784038488998,opt,sm
 story,Self-BLEU,opt_sm,0.58684777418408,opt,sm
 story,Perplexity,opt_sm,25.8082203125,opt,sm
 story,Zipf,opt_sm,1.0212674176245,opt,sm
-story,IoU,opt_sm,0.40555067999028,opt,sm
+story,SO,opt_sm,0.40555067999028,opt,sm
 story,CORR,opt_sm,0.7374041131874,opt,sm
 story,SAM,opt_sm,0.230712791104,opt,sm
 story,SPEAR,opt_sm,0.0355081629774,opt,sm
@@ -177,7 +177,7 @@ wiki,BLEU,bloom_bg,0.38787813246916,bloom,bg
 wiki,Self-BLEU,bloom_bg,0.4219627208122,bloom,bg
 wiki,Perplexity,bloom_bg,24.24943125,bloom,bg
 wiki,Zipf,bloom_bg,0.97960223601378,bloom,bg
-wiki,IoU,bloom_bg,0.73414018001096,bloom,bg
+wiki,SO,bloom_bg,0.73414018001096,bloom,bg
 wiki,CORR,bloom_bg,0.7887264375174,bloom,bg
 wiki,SAM,bloom_bg,0.2078135833697,bloom,bg
 wiki,SPEAR,bloom_bg,0.022880791472432,bloom,bg
@@ -191,7 +191,7 @@ wiki,BLEU,bloom_sm,0.275840690890519,bloom,sm
 wiki,Self-BLEU,bloom_sm,0.27982161369551,bloom,sm
 wiki,Perplexity,bloom_sm,32.0306518089798,bloom,sm
 wiki,Zipf,bloom_sm,1.09173258540102,bloom,sm
-wiki,IoU,bloom_sm,0.70447163757737,bloom,sm
+wiki,SO,bloom_sm,0.70447163757737,bloom,sm
 wiki,CORR,bloom_sm,0.674675085048567,bloom,sm
 wiki,SAM,bloom_sm,0.257560687427901,bloom,sm
 wiki,SPEAR,bloom_sm,0.0588878674003548,bloom,sm
@@ -205,7 +205,7 @@ wiki,BLEU,gpt2_bg,0.3893173802654,gpt2,bg
 wiki,Self-BLEU,gpt2_bg,0.4235632497452,gpt2,bg
 wiki,Perplexity,gpt2_bg,20.38088125,gpt2,bg
 wiki,Zipf,gpt2_bg,0.9748892831276,gpt2,bg
-wiki,IoU,gpt2_bg,0.7419497800336,gpt2,bg
+wiki,SO,gpt2_bg,0.7419497800336,gpt2,bg
 wiki,CORR,gpt2_bg,0.7804999057608,gpt2,bg
 wiki,SAM,gpt2_bg,0.2126917250552,gpt2,bg
 wiki,SPEAR,gpt2_bg,0.0230738735816,gpt2,bg
@@ -219,7 +219,7 @@ wiki,BLEU,gpt2_sm,0.4010868454628,gpt2,sm
 wiki,Self-BLEU,gpt2_sm,0.4593289523594,gpt2,sm
 wiki,Perplexity,gpt2_sm,15.4034515625,gpt2,sm
 wiki,Zipf,gpt2_sm,0.9903786934014,gpt2,sm
-wiki,IoU,gpt2_sm,0.7455734200356,gpt2,sm
+wiki,SO,gpt2_sm,0.7455734200356,gpt2,sm
 wiki,CORR,gpt2_sm,0.8059055628086,gpt2,sm
 wiki,SAM,gpt2_sm,0.1993086689246,gpt2,sm
 wiki,SPEAR,gpt2_sm,0.0218374212268,gpt2,sm
@@ -233,7 +233,7 @@ wiki,BLEU,opt_bg,0.36038009374182,opt,bg
 wiki,Self-BLEU,opt_bg,0.37870087553266,opt,bg
 wiki,Perplexity,opt_bg,26.935140625,opt,bg
 wiki,Zipf,opt_bg,1.0158358592698,opt,bg
-wiki,IoU,opt_bg,0.43606794002224,opt,bg
+wiki,SO,opt_bg,0.43606794002224,opt,bg
 wiki,CORR,opt_bg,0.7685643279422,opt,bg
 wiki,SAM,opt_bg,0.2173665172302,opt,bg
 wiki,SPEAR,opt_bg,0.029026139286,opt,bg
@@ -247,7 +247,7 @@ wiki,BLEU,opt_sm,0.35987491085622,opt,sm
 wiki,Self-BLEU,opt_sm,0.4234046816592,opt,sm
 wiki,Perplexity,opt_sm,20.233475,opt,sm
 wiki,Zipf,opt_sm,0.9889993382833,opt,sm
-wiki,IoU,opt_sm,0.42447739999746,opt,sm
+wiki,SO,opt_sm,0.42447739999746,opt,sm
 wiki,CORR,opt_sm,0.7707330116574,opt,sm
 wiki,SAM,opt_sm,0.2163655714316,opt,sm
 wiki,SPEAR,opt_sm,0.0259549129774,opt,sm
