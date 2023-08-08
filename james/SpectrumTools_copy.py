@@ -206,10 +206,10 @@ text_length_tuple = (0, 1, 2, 3, 4)
 ans_str = ''
 
 human_list = [
-    '/Users/james/Workspace/gpt-2-output-dataset/james/MAUVE_datasets/webtext.train.model=_gpt2_p1.0_a.fft.csv'
+    '/Users/james/Workspace/gpt-2-output-dataset/james/MAUVE_datasets/webtext.train.model=_gpt2_xl_p1.0_a.fft.csv'
 ]
 gen_text_list = [
-    '/Users/james/Workspace/gpt-2-output-dataset/james/MAUVE_datasets/webtext.train.model=_gpt2_p1.0_b.fft.csv'
+    '/Users/james/Workspace/gpt-2-output-dataset/james/MAUVE_datasets/webtext.train.model=_gpt2_xl_p1.0_b.fft.csv'
 ]
 
 for text_length in range(1):
@@ -254,7 +254,7 @@ for text_length in range(1):
     print('corr: ', avg_corr)
     print('sam: ', avg_sam)
     print('spearmanr: ', avg_spearmanr)
-
+    pd.DataFrame(pso_list).to_csv('pso_gpt2_xl_p1.0.csv')
 # with open('Ans.txt','w') as f:
 #     f.write(ans_str)
 
