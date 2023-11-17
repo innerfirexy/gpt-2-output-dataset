@@ -17,4 +17,13 @@ parser.add_argument('--output',
 
 
 def main():
+    args = parser.parse_args()
+    with open(args.input, 'r') as f:
+        lines = f.readlines()
+        for line in tqdm(lines):
+            pass
     pass
+
+
+if __name__ == '__main__':
+    main()
